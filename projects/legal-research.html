@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Advanced Web Grounding for Legal & Research Evidence</title>
+<meta name="description" content="Bài học tương tác chuyên sâu về web-grounding, cào dữ liệu pháp lý, đối chiếu hiệu lực văn bản và truy vết phiên bản nghiên cứu khoa học." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap&subset=latin,vietnamese" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<style>
+  :root{
+    --bg:#faf7f2;
+    --paper:#ffffff;
+    --ink:#1a1a1a;
+    --muted:#6b6b6b;
+    --soft:#f4f1eb;
+    --line:#d8d2c6;
+    --accent:#2c5282;
+    --accent-soft:#dbeafe;
+    --harness:#c05621;
+    --harness-soft:#ffedd5;
+    --green:#047857;
+    --green-soft:#d1fae5;
+    --red:#b91c1c;
+    --red-soft:#fee2e2;
+    --yellow:#a16207;
+    --yellow-soft:#fef3c7;
+    --purple:#6d28d9;
+    --purple-soft:#ede9fe;
+    --shadow:0 1px 3px rgba(0,0,0,.05);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font-family:'Source Serif 4',Georgia,serif;line-height:1.68;
+    -webkit-font-smoothing:antialiased;
+  }
+  body.vi{font-family:'Times New Roman','Noto Serif',serif}
+  body.vi .sans, body.vi button, body.vi nav, body.vi .meta, body.vi .figure,
+  body.vi .formula-label, body.vi .term-grid, body.vi .worked-example,
+  body.vi .callout, body.vi .pipeline, body.vi .step-info, body.vi .card,
+  body.vi .score-table, body.vi footer{font-family:Arial,'Helvetica Neue',sans-serif}
+  .sans,button,nav,.meta,.figure,.formula-label,.term-grid,.worked-example,
+  .callout,.pipeline,.step-info,.card,.score-table,footer{font-family:'Inter',system-ui,sans-serif}
+  code,.mono,.kbd,.live-math{font-family:'JetBrains Mono',Consolas,monospace}
+  button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid rgba(44,82,130,.3);outline-offset:2px}
+  .reading-line{position:fixed;top:0;left:0;height:3px;background:var(--accent);width:0;z-index:200;transition:width .08s linear}
+  header.paper{max-width:1100px;margin:0 auto;padding:58px 40px 30px;border-bottom:1px solid var(--line);position:relative}
+  header.paper h1{font-size:clamp(2rem,5vw,2.75rem);margin:0 0 10px;line-height:1.18;letter-spacing:-.6px}
+  header.paper .subtitle{color:var(--muted);font-size:1.12rem;font-style:italic;margin-bottom:20px;max-width:820px}
+  .meta{display:flex;gap:18px;flex-wrap:wrap;font-size:.88rem;color:var(--muted)}
+  .meta strong{color:var(--ink)}
+  .lang-switch{position:absolute;top:58px;right:40px;display:flex;gap:4px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:3px;font-family:'Inter',sans-serif;font-size:.8rem}
+  .lang-switch button{padding:6px 12px;border:none;background:transparent;border-radius:18px;cursor:pointer;color:var(--muted)}
+  .lang-switch button.active{background:var(--accent);color:#fff}
+  .abstract{max-width:1100px;margin:30px auto;padding:22px 30px;background:var(--paper);border-left:4px solid var(--accent);box-shadow:var(--shadow)}
+  .abstract h3{margin:0 0 8px;font-size:.78rem;text-transform:uppercase;letter-spacing:2px;color:var(--accent);font-family:'Inter',sans-serif}
+  .abstract p{margin:0;font-size:1.03rem}
+  .concept-banner{max-width:1100px;margin:0 auto 12px;padding:0 40px}
+  .agent-eq{text-align:center;padding:25px;background:linear-gradient(135deg,var(--accent-soft),var(--harness-soft));border:1px solid var(--line);border-radius:8px}
+  .agent-eq .big{font-family:'Inter',sans-serif;font-size:clamp(1.35rem,4vw,2rem);font-weight:700;letter-spacing:-.5px}
+  .agent-eq .llm-c{color:var(--accent)} .agent-eq .h-c{color:var(--harness)}
+  .agent-eq .desc{margin-top:7px;color:var(--muted);font-size:.92rem;font-family:'Inter',sans-serif}
+  main{max-width:1100px;margin:0 auto;padding:18px 40px 90px;display:grid;grid-template-columns:225px 1fr;gap:42px}
+  nav.toc{position:sticky;top:18px;align-self:start;font-size:.84rem;max-height:calc(100vh - 36px);overflow:auto}
+  nav.toc h4{font-size:.72rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin:0 0 12px}
+  nav.toc a{display:block;padding:7px 0 7px 10px;color:var(--muted);text-decoration:none;border-left:2px solid transparent;transition:.2s}
+  nav.toc a:hover,nav.toc a.active{color:var(--accent);border-left-color:var(--accent)}
+  article{min-width:0}
+  article h2{font-size:1.72rem;margin:52px 0 10px;border-bottom:1px solid var(--line);padding-bottom:9px;scroll-margin-top:30px}
+  article h2:first-child{margin-top:16px}
+  article h3{font-size:1.2rem;margin:30px 0 8px;color:var(--accent)}
+  article p{font-size:1.02rem;margin:12px 0}
+  article ul{padding-left:22px}
+  .figure{background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:20px;margin:24px 0;box-shadow:var(--shadow)}
+  .figure-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .figure-title{font-size:.9rem;font-weight:700;color:var(--ink)}
+  .figure-num{display:inline-block;font-size:.68rem;color:var(--accent);background:var(--accent-soft);padding:3px 7px;border-radius:4px;margin-right:7px}
+  .figure figcaption{margin-top:15px;padding-top:11px;border-top:1px dashed var(--line);font-size:.88rem;color:var(--muted);font-style:italic}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .controls button,.mini-btn{font-family:'Inter',sans-serif;font-size:.82rem;padding:8px 13px;border:1px solid var(--line);background:#fff;border-radius:5px;cursor:pointer;transition:.15s;color:var(--ink)}
+  .controls button:hover,.mini-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .controls button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .pipeline{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:15px;background:#fafafa;border-radius:6px;min-height:100px}
+  .pstep{padding:10px 13px;border-radius:6px;background:#eee;font-size:.82rem;font-weight:600;border:2px solid transparent;transition:.3s;position:relative;text-align:center}
+  .pstep.llm{background:var(--accent-soft);color:#1e3a5f}
+  .pstep.harness{background:var(--harness-soft);color:#7c2d12}
+  .pstep.active{border-color:var(--accent);transform:scale(1.06);box-shadow:0 4px 12px rgba(44,82,130,.2)}
+  .pstep.done{opacity:.52}
+  .pstep .tag{position:absolute;top:-9px;right:-6px;font-size:.56rem;background:var(--accent);color:#fff;padding:1px 5px;border-radius:8px}
+  .pstep.harness .tag{background:var(--harness)}
+  .parr{color:var(--muted)}
+  .step-info{background:#fff;border:1px solid var(--line);border-radius:6px;padding:14px;margin-top:12px;min-height:87px;font-size:.9rem}
+  .step-info h4{margin:0 0 5px;color:var(--accent);font-size:1rem}
+  .badge{display:inline-block;font-size:.67rem;padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle}
+  .badge.llm{background:var(--accent-soft);color:#1e3a5f}.badge.harness{background:var(--harness-soft);color:#7c2d12}
+  .kbd{background:#eee;padding:1px 6px;border-radius:3px;border:1px solid #ccc;font-size:.78em}
+  .callout{border-radius:6px;padding:13px 15px;margin:15px 0;font-size:.91rem;border-left:4px solid}
+  .callout.correction{background:var(--red-soft);border-color:var(--red)}
+  .callout.note{background:var(--yellow-soft);border-color:var(--yellow)}
+  .callout.good{background:var(--green-soft);border-color:var(--green)}
+  .callout strong{display:block;margin-bottom:3px}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+  .card{background:#fafafa;border:1px solid var(--line);border-radius:6px;padding:14px;font-size:.9rem}
+  .card h4{margin:0 0 7px;font-size:.94rem;color:var(--accent)}
+  .card.llm{border-left:4px solid var(--accent)}.card.harness{border-left:4px solid var(--harness)}
+  .formula-card{background:#fff;border:1px solid var(--line);border-radius:7px;margin:18px 0;overflow:hidden;box-shadow:var(--shadow)}
+  .formula-label{padding:8px 13px;background:var(--soft);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted)}
+  .formula-label .illustrative{background:var(--yellow-soft);color:var(--yellow);padding:3px 7px;border-radius:10px;text-transform:none;letter-spacing:0;font-size:.68rem}
+  .eq{padding:18px 12px;overflow-x:auto;text-align:center;min-height:62px}
+  .eq .katex{font-size:1.13rem}
+  .eq-fallback{display:none;color:var(--red);font-family:'JetBrains Mono',monospace;font-size:.86rem;white-space:pre-wrap}
+  .formula-card.math-error .eq-fallback{display:block}.formula-card.math-error .math-target{display:none}
+  .formula-explain{padding:0 15px 15px}
+  .term-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 14px;font-size:.84rem;margin:4px 0 12px}
+  .term-grid div{background:#fafafa;border:1px solid #ece8df;border-radius:4px;padding:7px 9px}
+  .term-grid code{color:var(--accent);font-weight:600}
+  .worked-example{background:var(--green-soft);border-left:4px solid var(--green);padding:12px 14px;border-radius:5px;font-size:.88rem;line-height:1.65}
+  .worked-example strong{color:#065f46}
+  .query-demo{background:#fafafa;padding:15px;border-radius:6px}
+  .query-source{padding:11px 13px;background:#fff;border:1px solid var(--line);border-radius:5px;font-size:.9rem}
+  .query-arrow{text-align:center;color:var(--muted);padding:8px}
+  .tokens{display:flex;flex-wrap:wrap;gap:7px}
+  .token{opacity:0;transform:translateY(5px);transition:.35s;padding:6px 9px;border-radius:5px;background:#fff;border:1px solid var(--line);font-size:.78rem}
+  .token.show{opacity:1;transform:none}.token.entity{border-color:#93c5fd;background:#eff6ff}.token.time{border-color:#fbbf24;background:#fffbeb}.token.source{border-color:#86efac;background:#f0fdf4}.token.intent{border-color:#c4b5fd;background:#f5f3ff}
+  .query-final{margin-top:10px;padding:11px 13px;background:#1a1a1a;color:#a7f3d0;border-radius:5px;font-size:.82rem;min-height:46px}
+  .score-table{width:100%;border-collapse:collapse;font-size:.8rem}
+  .score-table th,.score-table td{border:1px solid var(--line);padding:8px;text-align:center}
+  .score-table th{background:#f3f4f6}.score-table td:first-child,.score-table th:first-child{text-align:left}
+  .score-table tr.selected{background:var(--green-soft)}.score-table tr.rejected{opacity:.55;background:#fafafa}
+  .score-pill{font-family:'JetBrains Mono',monospace;font-weight:700}
+  .tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:12px;overflow:auto}
+  .tab-btn{border:none;background:transparent;padding:8px 12px;cursor:pointer;color:var(--muted);white-space:nowrap}
+  .tab-btn.active{color:var(--accent);border-bottom:2px solid var(--accent)}
+  .tab-pane{display:none}.tab-pane.active{display:block}
+  .codebox{background:#1d1f21;color:#d8dee9;border-radius:5px;padding:13px;overflow:auto;white-space:pre-wrap;font-size:.78rem;line-height:1.7}
+  .dom-keep{background:rgba(16,185,129,.24);color:#d1fae5}.dom-remove{text-decoration:line-through;opacity:.45;color:#fecaca}
+  .chunk-list{display:flex;flex-direction:column;gap:9px}
+  .chunk{border:1px solid var(--line);border-radius:5px;padding:11px;background:#fff;transition:.3s;font-size:.85rem}
+  .chunk.high{border-color:#34d399;background:#ecfdf5}.chunk.mid{border-color:#fbbf24;background:#fffbeb}.chunk.low{border-color:#fca5a5;background:#fef2f2;opacity:.65}
+  .bar{height:7px;background:#e5e7eb;border-radius:4px;overflow:hidden;margin-top:7px}.bar-fill{height:100%;width:0;background:var(--accent);transition:width .65s}
+  .cos-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
+  .slider-row{display:grid;grid-template-columns:52px 1fr 54px;gap:8px;align-items:center;margin:10px 0;font-size:.83rem}
+  .slider-row input{width:100%}.slider-row output{text-align:right;color:var(--accent);font-family:'JetBrains Mono',monospace}
+  .cos-result{background:#fafafa;border:1px solid var(--line);border-radius:6px;padding:14px;text-align:center}
+  .cos-result .big{font-size:2rem;color:var(--accent);font-weight:700;font-family:'JetBrains Mono',monospace}
+  .live-math{margin-top:10px;font-size:.75rem;text-align:left;background:#fff;padding:9px;border-radius:4px;border:1px dashed var(--line);overflow:auto}
+  .noise-list{display:flex;flex-direction:column;gap:8px}.noise{padding:9px 11px;border-radius:5px;border-left:4px solid;font-size:.83rem;transition:.35s}.noise.content{background:var(--green-soft);border-color:var(--green)}.noise.nav{background:var(--yellow-soft);border-color:var(--yellow)}.noise.ad{background:var(--red-soft);border-color:var(--red)}.noise.removed{opacity:.18;transform:translateX(12px);text-decoration:line-through}
+  .context-box{border:2px solid var(--accent);border-radius:6px;padding:15px;background:#fff}.ctx-item{padding:8px 10px;border-radius:4px;margin:7px 0;opacity:0;transform:translateX(-8px);transition:.45s;font-size:.82rem}.ctx-item.show{opacity:1;transform:none}.ctx-system{background:var(--accent-soft);border-left:3px solid var(--accent)}.ctx-tools{background:var(--green-soft);border-left:3px solid var(--green)}.ctx-user{background:var(--harness-soft);border-left:3px solid var(--harness)}
+  .capacity{height:9px;background:#e5e7eb;border-radius:5px;overflow:hidden;margin-top:10px}.capacity-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),#60a5fa);transition:1s}.capacity-label{display:flex;justify-content:space-between;font-size:.76rem;color:var(--muted);margin-top:5px}
+  .flow{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:7px}.flow-node{padding:9px 11px;border:1px solid var(--line);border-radius:5px;background:#fff;cursor:pointer;font-size:.76rem;font-weight:600;transition:.2s}.flow-node:hover,.flow-node.active{background:var(--accent);color:#fff;border-color:var(--accent);transform:translateY(-2px)}.flow-desc{margin-top:12px;min-height:63px;background:#fafafa;border:1px solid var(--line);border-radius:5px;padding:12px;font-size:.85rem}
+  .takeaway{background:#fff;border:1px solid var(--line);border-radius:6px;padding:16px;margin:14px 0}.takeaway h4{margin:0 0 9px;font-family:'Inter',sans-serif;color:var(--accent)}.takeaway li{margin:7px 0}
+  .shortcuts{font-size:.8rem;color:var(--muted);margin-top:10px;text-align:center}
+  footer{max-width:1100px;margin:20px auto 0;padding:24px 40px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:.83rem}
+  @media(max-width:850px){main{grid-template-columns:1fr;padding:18px 20px 70px}nav.toc{position:static;max-height:none;display:grid;grid-template-columns:1fr 1fr;gap:0 12px}nav.toc h4{grid-column:1/-1}header.paper{padding:32px 20px}.lang-switch{position:static;width:max-content;margin:0 0 18px}.abstract{margin:20px;padding:18px}.concept-banner{padding:0 20px}.two-col,.cos-grid{grid-template-columns:1fr}}
+  @media(max-width:560px){nav.toc{grid-template-columns:1fr}.term-grid{grid-template-columns:1fr}.figure{padding:14px}.figure-head{align-items:flex-start;flex-direction:column}.score-table{font-size:.68rem}.score-table th,.score-table td{padding:5px}.pstep{font-size:.72rem;padding:8px}.parr{transform:rotate(90deg);margin:2px 45%}}
+  @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+  .mode-switch{display:flex;gap:5px;padding:4px;background:#fff;border:1px solid var(--line);border-radius:7px;flex-wrap:wrap}
+  .mode-switch button{border:none;background:transparent;padding:7px 11px;border-radius:5px;cursor:pointer;font-weight:600;color:var(--muted)}
+  .mode-switch button.active{background:var(--accent);color:#fff}
+  .domain-panel{display:none}.domain-panel.active{display:block}
+  .source-ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:12px 0}
+  .rung{border:1px solid var(--line);background:#fff;border-radius:6px;padding:11px;font-size:.8rem;position:relative}
+  .rung strong{display:block;color:var(--accent);margin-bottom:4px}.rung::before{content:attr(data-rank);position:absolute;right:7px;top:6px;font:700 .68rem 'JetBrains Mono';color:var(--muted)}
+  .graph{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:14px;background:#fafafa;border-radius:6px}
+  .node{padding:10px 12px;border-radius:6px;border:2px solid var(--line);background:#fff;font:.79rem 'Inter',sans-serif;cursor:pointer;transition:.2s;max-width:175px;text-align:center}
+  .node:hover,.node.active{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 4px 12px rgba(44,82,130,.13)}
+  .node.old{background:var(--red-soft)}.node.current{background:var(--green-soft)}.node.amend{background:var(--yellow-soft)}.node.reading{background:var(--purple-soft)}
+  .edge{font-size:1.15rem;color:var(--muted)}
+  .status-box{margin-top:12px;border:1px solid var(--line);border-radius:6px;padding:14px;background:#fff;min-height:82px}
+  .status-title{font-weight:700;color:var(--accent);margin-bottom:5px}
+  .timeline{position:relative;margin:28px 12px 14px;padding-top:25px;border-top:4px solid #d1d5db}
+  .timeline-point{position:absolute;top:-10px;transform:translateX(-50%);width:20px;height:20px;border-radius:50%;border:4px solid #fff;background:var(--accent);box-shadow:0 0 0 1px var(--line)}
+  .timeline-label{position:absolute;top:17px;transform:translateX(-50%);font:.68rem 'Inter';text-align:center;width:125px;color:var(--muted)}
+  .date-lab{display:grid;grid-template-columns:1fr 1.25fr;gap:16px;align-items:start}
+  .date-control{background:#fafafa;border:1px solid var(--line);border-radius:6px;padding:14px}.date-control input{width:100%;padding:9px;border:1px solid var(--line);border-radius:5px;font:inherit}
+  .date-result{border:2px solid var(--accent);border-radius:7px;padding:15px;background:#fff;min-height:140px}
+  .result-chip{display:inline-block;padding:3px 8px;border-radius:12px;font:.72rem 'Inter';font-weight:700;margin-bottom:7px}.result-chip.good{background:var(--green-soft);color:var(--green)}.result-chip.warn{background:var(--yellow-soft);color:var(--yellow)}.result-chip.bad{background:var(--red-soft);color:var(--red)}
+  .query-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.query-output{background:#1d1f21;color:#a7f3d0;border-radius:6px;padding:13px;white-space:pre-wrap;min-height:130px;font:.78rem/1.65 'JetBrains Mono'}
+  .check-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.check-item{display:flex;gap:8px;align-items:flex-start;background:#fafafa;border:1px solid var(--line);padding:9px;border-radius:5px;font:.82rem 'Inter'}
+  .crawl-meter{height:14px;background:#e5e7eb;border-radius:7px;overflow:hidden;margin:10px 0}.crawl-fill{height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--yellow),var(--red));transition:.5s}
+  .metric-row{display:grid;grid-template-columns:1fr 70px;gap:10px;align-items:center;margin:7px 0;font:.82rem 'Inter'}.metric-row output{text-align:right;font-family:'JetBrains Mono'}
+  .schema{background:#111827;color:#d1d5db;border-radius:6px;padding:13px;font:.75rem/1.65 'JetBrains Mono';overflow:auto;white-space:pre-wrap}.schema .key{color:#93c5fd}.schema .str{color:#a7f3d0}.schema .num{color:#fde68a}
+  .matrix{width:100%;border-collapse:collapse;font:.78rem 'Inter'}.matrix th,.matrix td{border:1px solid var(--line);padding:8px;vertical-align:top}.matrix th{background:#f3f4f6}.matrix select{max-width:140px;padding:5px;border:1px solid var(--line);border-radius:4px}
+  .evidence-score{font-weight:700;font-family:'JetBrains Mono'}.evidence-score.high{color:var(--green)}.evidence-score.mid{color:var(--yellow)}.evidence-score.low{color:var(--red)}
+  .mini-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.mini-step{padding:10px 7px;border:1px solid var(--line);border-radius:5px;text-align:center;font:.75rem 'Inter';background:#fff;transition:.25s}.mini-step.active{background:var(--accent);color:#fff;transform:translateY(-3px)}
+  .exercise{border:1px solid var(--line);border-radius:7px;background:#fff;margin:10px 0;overflow:hidden}.exercise summary{cursor:pointer;padding:12px 14px;font-family:'Inter';font-weight:700;background:#fafafa}.exercise-body{padding:13px 15px;font-size:.93rem}
+  .tagline{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.pill{padding:3px 8px;border-radius:12px;background:var(--soft);font:.7rem 'Inter';color:var(--muted)}
+  .legend{display:flex;gap:11px;flex-wrap:wrap;font:.72rem 'Inter';color:var(--muted);margin-top:8px}.legend span::before{content:'';display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}.leg-old::before{background:var(--red-soft)}.leg-current::before{background:var(--green-soft)}.leg-amend::before{background:var(--yellow-soft)}.leg-reading::before{background:var(--purple-soft)}
+  .reference-list{font:.86rem 'Inter';display:grid;gap:8px}.reference-list a{color:var(--accent);word-break:break-word}
+  @media(max-width:850px){.source-ladder{grid-template-columns:1fr 1fr}.date-lab,.query-grid{grid-template-columns:1fr}.mini-flow{grid-template-columns:1fr 1fr}.timeline{margin-bottom:70px}}
+  @media(max-width:560px){.source-ladder,.check-grid{grid-template-columns:1fr}.mini-flow{grid-template-columns:1fr}.timeline-label{width:90px;font-size:.61rem}.matrix{font-size:.68rem}}
+</style>
+</head>
+<body class="vi">
+<div class="reading-line" id="readingLine"></div>
+<header class="paper">
+  <div class="lang-switch" aria-label="Language switch">
+    <button id="langEn" onclick="setLang('en')">🇬🇧 English</button>
+    <button id="langVi" class="active" onclick="setLang('vi')">🇻🇳 Tiếng Việt</button>
+  </div>
+  <h1 data-en="Advanced Web Grounding for Legal & Research Evidence" data-vi="Web-Grounding chuyên sâu: Pháp lý & Nghiên cứu">Web-Grounding chuyên sâu: Pháp lý & Nghiên cứu</h1>
+  <div class="subtitle" data-en="From crawling a page to reconstructing authority, effective dates, versions, corrections, and auditable evidence." data-vi="Từ cào một trang web đến tái dựng thẩm quyền, hiệu lực, phiên bản, đính chính và chuỗi bằng chứng có thể kiểm toán.">Từ cào một trang web đến tái dựng thẩm quyền, hiệu lực, phiên bản, đính chính và chuỗi bằng chứng có thể kiểm toán.</div>
+  <div class="meta">
+    <span><strong data-en="Author:" data-vi="Tác giả:">Tác giả:</strong> NDT-PRD</span>
+    <span><strong data-en="Format:" data-vi="Định dạng:">Định dạng:</strong> <span data-en="Advanced interactive explainer" data-vi="Bài học tương tác chuyên sâu">Bài học tương tác chuyên sâu</span></span>
+    <span><strong data-en="Domains:" data-vi="Lĩnh vực:">Lĩnh vực:</strong> Legal intelligence · Research intelligence</span>
+    <span><strong data-en="Core idea:" data-vi="Ý tưởng cốt lõi:">Ý tưởng cốt lõi:</strong> Evidence graph + provenance</span>
+  </div>
+</header>
+<section class="abstract">
+  <h3 data-en="Abstract" data-vi="Tóm tắt">Tóm tắt</h3>
+  <p data-en="Advanced grounding is not merely finding a relevant page. The system must identify authoritative sources, crawl responsibly, extract structure, normalize identifiers, reconstruct version relationships, evaluate time-specific applicability, and attach every claim to inspectable evidence. This lesson presents two parallel workflows: Vietnamese legal documents and scientific research records." data-vi="Web-grounding chuyên sâu không chỉ là tìm được một trang có vẻ liên quan. Hệ thống phải nhận diện nguồn có thẩm quyền, cào dữ liệu có trách nhiệm, bảo toàn cấu trúc, chuẩn hóa định danh, tái dựng quan hệ phiên bản, xác định hiệu lực theo thời điểm và gắn từng kết luận với bằng chứng có thể kiểm tra lại. Bài học triển khai song song hai quy trình: văn bản pháp lý Việt Nam và hồ sơ nghiên cứu khoa học.">Web-grounding chuyên sâu không chỉ là tìm được một trang có vẻ liên quan. Hệ thống phải nhận diện nguồn có thẩm quyền, cào dữ liệu có trách nhiệm, bảo toàn cấu trúc, chuẩn hóa định danh, tái dựng quan hệ phiên bản, xác định hiệu lực theo thời điểm và gắn từng kết luận với bằng chứng có thể kiểm tra lại. Bài học triển khai song song hai quy trình: văn bản pháp lý Việt Nam và hồ sơ nghiên cứu khoa học.</p>
+</section>
+<div class="concept-banner"><div class="agent-eq">
+  <div class="big"><span class="h-c">Reliable grounding</span> = <span class="llm-c">Retrieval</span> + <span class="h-c">Version graph</span> + <span style="color:var(--green)">Provenance</span></div>
+  <div class="desc" data-en="A page is a container. The evidence object is the document, its identity, relationships, dates, authority, and exact supporting passage." data-vi="Trang web chỉ là vỏ chứa. Đối tượng bằng chứng gồm văn bản, định danh, quan hệ, mốc thời gian, thẩm quyền và đoạn trích hỗ trợ chính xác.">Trang web chỉ là vỏ chứa. Đối tượng bằng chứng gồm văn bản, định danh, quan hệ, mốc thời gian, thẩm quyền và đoạn trích hỗ trợ chính xác.</div>
+</div></div>
+<main>
+<nav class="toc" aria-label="Table of contents">
+  <h4 data-en="Sections" data-vi="Nội dung">Nội dung</h4>
+  <a href="#sec1" data-en="1. Evidence Graph" data-vi="1. Đồ thị bằng chứng">1. Đồ thị bằng chứng</a>
+  <a href="#sec2" data-en="2. Dual Pipeline" data-vi="2. Hai quy trình">2. Hai quy trình</a>
+  <a href="#sec3" data-en="3. Source Strategy" data-vi="3. Chiến lược nguồn">3. Chiến lược nguồn</a>
+  <a href="#sec4" data-en="4. Query Decomposition" data-vi="4. Phân rã truy vấn">4. Phân rã truy vấn</a>
+  <a href="#sec5" data-en="5. Responsible Crawling" data-vi="5. Cào có trách nhiệm">5. Cào có trách nhiệm</a>
+  <a href="#sec6" data-en="6. Extract & Normalize" data-vi="6. Trích xuất & chuẩn hóa">6. Trích xuất & chuẩn hóa</a>
+  <a href="#sec7" data-en="7. Legal Validity Chain" data-vi="7. Chuỗi hiệu lực pháp lý">7. Chuỗi hiệu lực pháp lý</a>
+  <a href="#sec8" data-en="8. Research Version Graph" data-vi="8. Đồ thị phiên bản NCKH">8. Đồ thị phiên bản NCKH</a>
+  <a href="#sec9" data-en="9. Deduplication" data-vi="9. Khử trùng lặp">9. Khử trùng lặp</a>
+  <a href="#sec10" data-en="10. Claim–Evidence Matrix" data-vi="10. Ma trận kết luận–bằng chứng">10. Ma trận kết luận–bằng chứng</a>
+  <a href="#sec11" data-en="11. Provenance Record" data-vi="11. Hồ sơ truy xuất">11. Hồ sơ truy xuất</a>
+  <a href="#sec12" data-en="12. Failure Modes" data-vi="12. Sai hỏng thường gặp">12. Sai hỏng thường gặp</a>
+  <a href="#sec13" data-en="13. Practice" data-vi="13. Bài tập thực hành">13. Bài tập thực hành</a>
+</nav>
+<article>
+<h2 id="sec1" data-en="1. From Web Pages to an Evidence Graph" data-vi="1. Từ trang web đến đồ thị bằng chứng">1. Từ trang web đến đồ thị bằng chứng</h2>
+<p data-en="A basic scraper returns text. An evidence-oriented system returns entities and relations: this document amends that document; this article is a corrected version of that record; this passage supports this claim; this status was observed at this time." data-vi="Một bộ cào cơ bản trả về văn bản. Một hệ thống hướng bằng chứng phải trả về thực thể và quan hệ: văn bản này sửa văn bản kia; bài báo này là bản đã đính chính của hồ sơ trước; đoạn này hỗ trợ kết luận nào; trạng thái được quan sát vào thời điểm nào.">Một bộ cào cơ bản trả về văn bản. Một hệ thống hướng bằng chứng phải trả về thực thể và quan hệ: văn bản này sửa văn bản kia; bài báo này là bản đã đính chính của hồ sơ trước; đoạn này hỗ trợ kết luận nào; trạng thái được quan sát vào thời điểm nào.</p>
+<div class="two-col">
+  <div class="card llm"><h4 data-en="Page-centric output" data-vi="Đầu ra lấy trang làm trung tâm">Đầu ra lấy trang làm trung tâm</h4><ul><li>URL</li><li data-en="Title and plain text" data-vi="Tiêu đề và văn bản thuần">Tiêu đề và văn bản thuần</li><li data-en="One retrieval timestamp" data-vi="Một thời điểm tải">Một thời điểm tải</li><li data-en="Weak identity across mirrors" data-vi="Khó nhận diện các bản sao">Khó nhận diện các bản sao</li></ul></div>
+  <div class="card harness"><h4 data-en="Evidence-centric output" data-vi="Đầu ra lấy bằng chứng làm trung tâm">Đầu ra lấy bằng chứng làm trung tâm</h4><ul><li data-en="Canonical identifier" data-vi="Định danh chuẩn">Định danh chuẩn</li><li data-en="Authority and provenance" data-vi="Thẩm quyền và nguồn gốc">Thẩm quyền và nguồn gốc</li><li data-en="Version and temporal relations" data-vi="Quan hệ phiên bản và thời gian">Quan hệ phiên bản và thời gian</li><li data-en="Claim-level supporting spans" data-vi="Đoạn hỗ trợ theo từng kết luận">Đoạn hỗ trợ theo từng kết luận</li></ul></div>
+</div>
+<div class="formula-card"><div class="formula-label"><span data-en="Evidence object" data-vi="Đối tượng bằng chứng">Đối tượng bằng chứng</span><span class="illustrative" data-en="Conceptual model" data-vi="Mô hình khái niệm">Mô hình khái niệm</span></div>
+<div class="eq"><div class="math-target" data-tex="E=(I,\,A,\,T,\,V,\,R,\,P,\,H)"></div><div class="eq-fallback">E = (identity, authority, time, version, relations, passage, hash)</div></div>
+<div class="formula-explain"><div class="term-grid"><div><code>I</code> identity</div><div><code>A</code> authority</div><div><code>T</code> temporal metadata</div><div><code>V</code> version</div><div><code>R</code> relations</div><div><code>P</code> supporting passage</div><div><code>H</code> content hash</div><div><code>E</code> auditable evidence</div></div></div></div>
+<div class="callout correction"><strong data-en="Critical distinction" data-vi="Phân biệt quan trọng">Phân biệt quan trọng</strong><span data-en="Newest publication date is not automatically the currently applicable legal rule. Likewise, the newest research webpage is not automatically the definitive scholarly record." data-vi="Ngày ban hành mới nhất không tự động đồng nghĩa với quy định đang áp dụng. Tương tự, trang nghiên cứu mới nhất không tự động là hồ sơ học thuật có giá trị cuối cùng.">Ngày ban hành mới nhất không tự động đồng nghĩa với quy định đang áp dụng. Tương tự, trang nghiên cứu mới nhất không tự động là hồ sơ học thuật có giá trị cuối cùng.</span></div>
+
+<h2 id="sec2" data-en="2. Two Domains, One Grounding Architecture" data-vi="2. Hai lĩnh vực, một kiến trúc grounding">2. Hai lĩnh vực, một kiến trúc grounding</h2>
+<p data-en="Switch domains and play the pipeline. The steps are structurally similar, but the identifiers, relations, authority rules, and stopping conditions differ." data-vi="Chuyển lĩnh vực và chạy mô phỏng. Hai quy trình có cấu trúc tương tự, nhưng khác định danh, quan hệ, quy tắc thẩm quyền và điều kiện dừng.">Chuyển lĩnh vực và chạy mô phỏng. Hai quy trình có cấu trúc tương tự, nhưng khác định danh, quan hệ, quy tắc thẩm quyền và điều kiện dừng.</p>
+<figure class="figure"><div class="figure-head"><div class="figure-title"><span class="figure-num">Figure 1</span><span data-en="Domain-aware evidence pipeline" data-vi="Quy trình bằng chứng theo lĩnh vực">Quy trình bằng chứng theo lĩnh vực</span></div><div class="mode-switch"><button id="pipeLegal" class="active" onclick="setPipelineDomain('legal')">⚖ Legal</button><button id="pipeResearch" onclick="setPipelineDomain('research')">🔬 Research</button></div></div>
+<div class="pipeline" id="advancedPipeline"></div>
+<div class="controls" style="justify-content:center;margin-top:12px"><button class="primary" onclick="togglePipeline()">▶ <span data-en="Play" data-vi="Chạy">Chạy</span></button><button onclick="stepAdvanced(1)">⏭ <span data-en="Step" data-vi="Tiến">Tiến</span></button><button onclick="stepAdvanced(-1)">⏮ <span data-en="Back" data-vi="Lùi">Lùi</span></button><button onclick="resetAdvanced()">⟲ <span data-en="Reset" data-vi="Đặt lại">Đặt lại</span></button></div>
+<div class="step-info" id="advancedInfo"></div><figcaption data-en="The pipeline can loop when identifiers conflict, a document relationship is missing, or evidence does not support the requested temporal claim." data-vi="Quy trình có thể lặp lại khi định danh xung đột, thiếu quan hệ giữa các văn bản hoặc bằng chứng chưa hỗ trợ kết luận theo thời điểm.">Quy trình có thể lặp lại khi định danh xung đột, thiếu quan hệ giữa các văn bản hoặc bằng chứng chưa hỗ trợ kết luận theo thời điểm.</figcaption></figure>
+
+<h2 id="sec3" data-en="3. Source Strategy: Authority Before Convenience" data-vi="3. Chiến lược nguồn: thẩm quyền trước sự tiện lợi">3. Chiến lược nguồn: thẩm quyền trước sự tiện lợi</h2>
+<p data-en="Search ranking is not a hierarchy of authority. Build a source ladder before crawling, and document when you fall back to a weaker rung." data-vi="Thứ hạng tìm kiếm không phải thứ bậc thẩm quyền. Hãy dựng thang nguồn trước khi cào và ghi lại lúc phải lùi xuống nguồn yếu hơn.">Thứ hạng tìm kiếm không phải thứ bậc thẩm quyền. Hãy dựng thang nguồn trước khi cào và ghi lại lúc phải lùi xuống nguồn yếu hơn.</p>
+<div class="tabs"><button class="tab-btn active" onclick="showDomainTab('legalSources',this)" data-en="Legal sources" data-vi="Nguồn pháp lý">Nguồn pháp lý</button><button class="tab-btn" onclick="showDomainTab('researchSources',this)" data-en="Research sources" data-vi="Nguồn NCKH">Nguồn NCKH</button></div>
+<div id="legalSources" class="tab-pane active"><div class="source-ladder">
+<div class="rung" data-rank="01"><strong data-en="Official primary" data-vi="Nguồn chính thức gốc">Nguồn chính thức gốc</strong><span data-en="Issuing body, official legal database, e-Gazette." data-vi="Cơ quan ban hành, CSDL pháp luật chính thức, Công báo điện tử.">Cơ quan ban hành, CSDL pháp luật chính thức, Công báo điện tử.</span></div>
+<div class="rung" data-rank="02"><strong data-en="Official consolidated" data-vi="Hợp nhất chính thức">Hợp nhất chính thức</strong><span data-en="Useful for reading the integrated text; preserve the underlying amending instruments." data-vi="Thuận tiện đọc nội dung đã ghép; vẫn phải giữ các văn bản sửa đổi nền.">Thuận tiện đọc nội dung đã ghép; vẫn phải giữ các văn bản sửa đổi nền.</span></div>
+<div class="rung" data-rank="03"><strong data-en="Institutional mirror" data-vi="Bản sao cơ quan">Bản sao cơ quan</strong><span data-en="Government or ministry portal reproducing the document." data-vi="Cổng cơ quan nhà nước đăng lại văn bản.">Cổng cơ quan nhà nước đăng lại văn bản.</span></div>
+<div class="rung" data-rank="04"><strong data-en="Commercial / secondary" data-vi="Thương mại / thứ cấp">Thương mại / thứ cấp</strong><span data-en="Good for discovery; verify decisive claims against official records." data-vi="Tốt để phát hiện; kết luận quyết định phải đối chiếu nguồn chính thức.">Tốt để phát hiện; kết luận quyết định phải đối chiếu nguồn chính thức.</span></div>
+</div></div>
+<div id="researchSources" class="tab-pane"><div class="source-ladder">
+<div class="rung" data-rank="01"><strong data-en="Publisher / registry" data-vi="Nhà xuất bản / registry">Nhà xuất bản / registry</strong><span data-en="Version of record, DOI metadata, Crossmark updates." data-vi="Bản xuất bản chính thức, metadata DOI, cập nhật Crossmark.">Bản xuất bản chính thức, metadata DOI, cập nhật Crossmark.</span></div>
+<div class="rung" data-rank="02"><strong data-en="Domain index" data-vi="Chỉ mục chuyên ngành">Chỉ mục chuyên ngành</strong><span data-en="PubMed/NCBI, discipline repositories, funder databases." data-vi="PubMed/NCBI, kho chuyên ngành, CSDL nhà tài trợ.">PubMed/NCBI, kho chuyên ngành, CSDL nhà tài trợ.</span></div>
+<div class="rung" data-rank="03"><strong data-en="Scholarly graph" data-vi="Đồ thị học thuật">Đồ thị học thuật</strong><span data-en="Crossref, OpenAlex and citation/relationship metadata." data-vi="Crossref, OpenAlex và metadata trích dẫn/quan hệ.">Crossref, OpenAlex và metadata trích dẫn/quan hệ.</span></div>
+<div class="rung" data-rank="04"><strong data-en="Discovery layer" data-vi="Lớp phát hiện">Lớp phát hiện</strong><span data-en="Search engines, author pages, news and aggregators." data-vi="Công cụ tìm kiếm, trang tác giả, báo chí và trang tổng hợp.">Công cụ tìm kiếm, trang tác giả, báo chí và trang tổng hợp.</span></div>
+</div></div>
+<div class="callout good"><strong>API-first, browser-second</strong><span data-en="Prefer stable APIs and structured metadata when available. Use browser extraction for content that the API does not expose, and PDF parsing for authoritative full text." data-vi="Ưu tiên API ổn định và metadata có cấu trúc. Chỉ dùng trình duyệt để lấy phần API không cung cấp, và phân tích PDF khi toàn văn có giá trị thẩm quyền nằm trong PDF.">Ưu tiên API ổn định và metadata có cấu trúc. Chỉ dùng trình duyệt để lấy phần API không cung cấp, và phân tích PDF khi toàn văn có giá trị thẩm quyền nằm trong PDF.</span></div>
+
+<h2 id="sec4" data-en="4. Query Decomposition: Search for Relations, Not One Answer" data-vi="4. Phân rã truy vấn: tìm quan hệ, không tìm một câu trả lời">4. Phân rã truy vấn: tìm quan hệ, không tìm một câu trả lời</h2>
+<p data-en="A robust query plan expands one user question into discovery, identity, authority, version, temporal, and contradiction checks." data-vi="Một kế hoạch truy vấn vững phải mở rộng câu hỏi thành các lượt tìm: phát hiện, định danh, thẩm quyền, phiên bản, thời gian và mâu thuẫn.">Một kế hoạch truy vấn vững phải mở rộng câu hỏi thành các lượt tìm: phát hiện, định danh, thẩm quyền, phiên bản, thời gian và mâu thuẫn.</p>
+<figure class="figure"><div class="figure-head"><div class="figure-title"><span class="figure-num">Figure 2</span><span data-en="Query-pack generator" data-vi="Bộ sinh gói truy vấn">Bộ sinh gói truy vấn</span></div></div>
+<div class="query-grid"><div>
+<label class="sans" for="queryInput" data-en="Question or topic" data-vi="Câu hỏi hoặc chủ đề">Câu hỏi hoặc chủ đề</label>
+<textarea id="queryInput" style="width:100%;min-height:90px;padding:10px;border:1px solid var(--line);border-radius:5px;font:inherit">Quy định hiện hành về xây dựng văn bản quy phạm pháp luật là văn bản nào?</textarea>
+<div class="mode-switch" style="margin-top:8px"><button id="queryLegal" class="active" onclick="setQueryDomain('legal')">⚖ Legal</button><button id="queryResearch" onclick="setQueryDomain('research')">🔬 Research</button></div>
+<button class="mini-btn" style="margin-top:10px" onclick="buildQueryPack()" data-en="Generate query pack" data-vi="Tạo gói truy vấn">Tạo gói truy vấn</button></div><div class="query-output" id="queryPack"></div></div>
+<figcaption data-en="Do not let query rewriting erase the original question. Store both the user's wording and every derived query." data-vi="Không để quá trình viết lại làm mất câu hỏi gốc. Cần lưu cả nguyên văn người dùng và mọi truy vấn dẫn xuất.">Không để quá trình viết lại làm mất câu hỏi gốc. Cần lưu cả nguyên văn người dùng và mọi truy vấn dẫn xuất.</figcaption></figure>
+
+<h2 id="sec5" data-en="5. Responsible Crawling and Fetch Control" data-vi="5. Cào dữ liệu có trách nhiệm và kiểm soát tải">5. Cào dữ liệu có trách nhiệm và kiểm soát tải</h2>
+<p data-en="A production crawler must control request rate, retries, caching, scope, and duplication. The goal is reproducible evidence—not maximum request volume." data-vi="Một bộ cào dùng thực tế phải kiểm soát tần suất, thử lại, bộ nhớ đệm, phạm vi và trùng lặp. Mục tiêu là bằng chứng tái lập được, không phải gửi nhiều request nhất.">Một bộ cào dùng thực tế phải kiểm soát tần suất, thử lại, bộ nhớ đệm, phạm vi và trùng lặp. Mục tiêu là bằng chứng tái lập được, không phải gửi nhiều request nhất.</p>
+<div class="two-col"><div class="card"><h4 data-en="Before fetching" data-vi="Trước khi tải">Trước khi tải</h4><div class="check-grid"><label class="check-item"><input type="checkbox" checked> <span data-en="Check access policy / robots / terms" data-vi="Kiểm tra chính sách truy cập / robots / điều khoản">Kiểm tra chính sách truy cập / robots / điều khoản</span></label><label class="check-item"><input type="checkbox" checked> <span data-en="Prefer documented API" data-vi="Ưu tiên API có tài liệu">Ưu tiên API có tài liệu</span></label><label class="check-item"><input type="checkbox" checked> <span data-en="Set domain allowlist" data-vi="Đặt danh sách miền cho phép">Đặt danh sách miền cho phép</span></label><label class="check-item"><input type="checkbox" checked> <span data-en="Define stop conditions" data-vi="Xác định điều kiện dừng">Xác định điều kiện dừng</span></label></div></div>
+<div class="card"><h4 data-en="During fetching" data-vi="Trong khi tải">Trong khi tải</h4><div class="check-grid"><label class="check-item"><input type="checkbox" checked> Cache + ETag</label><label class="check-item"><input type="checkbox" checked> Exponential backoff</label><label class="check-item"><input type="checkbox" checked> Retry budget</label><label class="check-item"><input type="checkbox" checked> Content hash</label></div></div></div>
+<figure class="figure"><div class="figure-head"><div class="figure-title"><span class="figure-num">Figure 3</span><span data-en="Crawler pressure simulator" data-vi="Mô phỏng áp lực crawler">Mô phỏng áp lực crawler</span></div></div>
+<div class="two-col"><div>
+<div class="slider-row"><label>RPS</label><input id="rps" type="range" min="1" max="20" value="3"><output id="rpsV">3</output></div>
+<div class="slider-row"><label data-en="Pages" data-vi="Trang">Trang</label><input id="pages" type="range" min="10" max="1000" step="10" value="150"><output id="pagesV">150</output></div>
+<div class="slider-row"><label>Cache</label><input id="cacheRate" type="range" min="0" max="95" value="60"><output id="cacheV">60%</output></div>
+<div class="slider-row"><label>Retry</label><input id="retryRate" type="range" min="0" max="40" value="5"><output id="retryV">5%</output></div>
+</div><div class="cos-result"><div data-en="Estimated origin requests" data-vi="Request ước tính đến máy chủ gốc">Request ước tính đến máy chủ gốc</div><div class="big" id="originReq">63</div><div class="crawl-meter"><div class="crawl-fill" id="crawlFill"></div></div><div id="crawlAdvice"></div><div class="live-math" id="crawlMath"></div></div></div>
+<figcaption data-en="This simulator is a teaching model. Real limits come from the provider's documentation, response headers, service agreements, and observed server behavior." data-vi="Đây là mô hình giảng dạy. Giới hạn thực tế phải lấy từ tài liệu nhà cung cấp, response header, thỏa thuận dịch vụ và hành vi máy chủ quan sát được.">Đây là mô hình giảng dạy. Giới hạn thực tế phải lấy từ tài liệu nhà cung cấp, response header, thỏa thuận dịch vụ và hành vi máy chủ quan sát được.</figcaption></figure>
+<h2 id="sec6" data-en="6. Extract Structure, Then Normalize" data-vi="6. Trích xuất cấu trúc, sau đó chuẩn hóa">6. Trích xuất cấu trúc, sau đó chuẩn hóa</h2>
+<p data-en="Legal and scientific documents are structure-rich. Flattening everything into plain text destroys article numbers, tables, footnotes, author affiliations, references, and the boundaries needed for precise citation." data-vi="Văn bản pháp lý và bài nghiên cứu giàu cấu trúc. Ép toàn bộ thành văn bản thuần sẽ làm mất số điều, bảng biểu, chú thích, cơ quan tác giả, tài liệu tham khảo và ranh giới cần thiết để trích dẫn chính xác.">Văn bản pháp lý và bài nghiên cứu giàu cấu trúc. Ép toàn bộ thành văn bản thuần sẽ làm mất số điều, bảng biểu, chú thích, cơ quan tác giả, tài liệu tham khảo và ranh giới cần thiết để trích dẫn chính xác.</p>
+<figure class="figure"><div class="figure-head"><div class="figure-title"><span class="figure-num">Figure 4</span><span data-en="Extraction layers" data-vi="Các tầng trích xuất">Các tầng trích xuất</span></div></div>
+<div class="tabs"><button class="tab-btn active" onclick="showExtractTab('extractRaw',this)" data-en="Raw input" data-vi="Đầu vào thô">Đầu vào thô</button><button class="tab-btn" onclick="showExtractTab('extractLayout',this)" data-en="Layout model" data-vi="Mô hình bố cục">Mô hình bố cục</button><button class="tab-btn" onclick="showExtractTab('extractRecord',this)" data-en="Normalized record" data-vi="Bản ghi chuẩn hóa">Bản ghi chuẩn hóa</button></div>
+<div id="extractRaw" class="tab-pane active"><div class="codebox">&lt;div class="document"&gt;
+  &lt;h2&gt;Điều 4. Nguyên tắc xây dựng...&lt;/h2&gt;
+  &lt;p&gt;1. Bảo đảm tính hợp hiến...&lt;/p&gt;
+  &lt;p class="note"&gt;Điều này được sửa đổi bởi...&lt;/p&gt;
+&lt;/div&gt;</div></div>
+<div id="extractLayout" class="tab-pane"><div class="chunk-list"><div class="chunk high"><strong>HEADING · Article 4</strong><div data-en="Structural anchor retained" data-vi="Giữ neo cấu trúc">Giữ neo cấu trúc</div></div><div class="chunk high"><strong>CLAUSE · 4.1</strong><div data-en="Normative text" data-vi="Nội dung quy phạm">Nội dung quy phạm</div></div><div class="chunk mid"><strong>ANNOTATION</strong><div data-en="Amendment note — metadata, not normative text" data-vi="Ghi chú sửa đổi — metadata, không phải nội dung quy phạm">Ghi chú sửa đổi — metadata, không phải nội dung quy phạm</div></div></div></div>
+<div id="extractRecord" class="tab-pane"><div class="schema"><span class="key">"anchor"</span>: <span class="str">"article-4-clause-1"</span>,
+<span class="key">"heading"</span>: <span class="str">"Điều 4. Nguyên tắc..."</span>,
+<span class="key">"text"</span>: <span class="str">"Bảo đảm tính hợp hiến..."</span>,
+<span class="key">"relation"</span>: <span class="str">"amended_by"</span>,
+<span class="key">"source_span"</span>: {<span class="key">"start"</span>: <span class="num">1280</span>, <span class="key">"end"</span>: <span class="num">1362</span>},
+<span class="key">"content_hash"</span>: <span class="str">"sha256:…"</span></div></div>
+<figcaption data-en="For PDFs, keep page numbers and bounding boxes when possible. OCR output should be marked as OCR-derived, not silently treated as authoritative text." data-vi="Với PDF, nên giữ số trang và tọa độ vùng văn bản khi có thể. Kết quả OCR phải được đánh dấu là dữ liệu suy ra từ OCR, không được âm thầm coi là nguyên văn có thẩm quyền.">Với PDF, nên giữ số trang và tọa độ vùng văn bản khi có thể. Kết quả OCR phải được đánh dấu là dữ liệu suy ra từ OCR, không được âm thầm coi là nguyên văn có thẩm quyền.</figcaption></figure>
+<div class="callout note"><strong data-en="Extraction confidence is field-specific" data-vi="Độ tin cậy trích xuất phải tính theo từng trường">Độ tin cậy trích xuất phải tính theo từng trường</strong><span data-en="A page may yield a reliable title but an unreliable effective date, or a correct DOI but a broken author list. Avoid one confidence score for the entire record." data-vi="Một trang có thể cho tiêu đề đáng tin nhưng ngày hiệu lực không đáng tin, hoặc DOI đúng nhưng danh sách tác giả lỗi. Không nên dùng một điểm tin cậy duy nhất cho toàn bộ bản ghi.">Một trang có thể cho tiêu đề đáng tin nhưng ngày hiệu lực không đáng tin, hoặc DOI đúng nhưng danh sách tác giả lỗi. Không nên dùng một điểm tin cậy duy nhất cho toàn bộ bản ghi.</span></div>
+
+<h2 id="sec7" data-en="7. Legal Validity Is a Time-Dependent Graph" data-vi="7. Hiệu lực pháp lý là đồ thị phụ thuộc thời gian">7. Hiệu lực pháp lý là đồ thị phụ thuộc thời gian</h2>
+<p data-en="To answer ‘what is the latest law?’ you must first clarify the target: latest promulgated instrument, currently effective base law, newest amendment, consolidated reading text, or the rule applicable on a historical date." data-vi="Để trả lời “văn bản luật mới nhất là gì?”, trước tiên phải xác định đích: văn bản ban hành mới nhất, luật nền đang có hiệu lực, văn bản sửa đổi mới nhất, bản hợp nhất để đọc hay quy định áp dụng tại một thời điểm lịch sử.">Để trả lời “văn bản luật mới nhất là gì?”, trước tiên phải xác định đích: văn bản ban hành mới nhất, luật nền đang có hiệu lực, văn bản sửa đổi mới nhất, bản hợp nhất để đọc hay quy định áp dụng tại một thời điểm lịch sử.</p>
+<div class="formula-card"><div class="formula-label"><span data-en="Temporal applicability" data-vi="Khả năng áp dụng theo thời gian">Khả năng áp dụng theo thời gian</span><span class="illustrative" data-en="Conceptual test" data-vi="Phép kiểm khái niệm">Phép kiểm khái niệm</span></div><div class="eq"><div class="math-target" data-tex="Applicable(d,t)=Authority(d)\land(E_s(d)\le t<E_e(d))\land\neg Superseded(d,t)"></div><div class="eq-fallback">Applicable = authoritative AND effective at t AND not superseded at t</div></div>
+<div class="formula-explain"><div class="term-grid"><div><code>E_s</code> <span data-en="effective start" data-vi="bắt đầu hiệu lực">bắt đầu hiệu lực</span></div><div><code>E_e</code> <span data-en="effective end" data-vi="kết thúc hiệu lực">kết thúc hiệu lực</span></div><div><code>Authority</code> <span data-en="valid issuing authority and source" data-vi="đúng thẩm quyền và nguồn">đúng thẩm quyền và nguồn</span></div><div><code>Superseded</code> <span data-en="replaced, repealed, or amended for the queried provision" data-vi="bị thay thế, bãi bỏ hoặc sửa ở điều khoản đang hỏi">bị thay thế, bãi bỏ hoặc sửa ở điều khoản đang hỏi</span></div></div></div></div>
+<figure class="figure"><div class="figure-head"><div class="figure-title"><span class="figure-num">Figure 5</span><span data-en="Worked legal version chain" data-vi="Chuỗi phiên bản pháp lý minh họa">Chuỗi phiên bản pháp lý minh họa</span></div></div>
+<div class="graph" id="legalGraph">
+<div class="node old" data-node="law80" onclick="explainLegalNode(this)">Luật 80/2015/QH13<br><small>01/07/2016 → 31/03/2025</small></div><span class="edge">→</span>
+<div class="node current" data-node="law64" onclick="explainLegalNode(this)">Luật 64/2025/QH15<br><small>Hiệu lực 01/04/2025</small></div><span class="edge">←</span>
+<div class="node amend" data-node="law87" onclick="explainLegalNode(this)">Luật 87/2025/QH15<br><small>Sửa đổi từ 01/07/2025</small></div><span class="edge">→</span>
+<div class="node reading" data-node="consolidated" onclick="explainLegalNode(this)">54/VBHN-VPQH<br><small>Xác thực 11/08/2025</small></div>
+</div><div class="legend"><span class="leg-old" data-en="Expired base law" data-vi="Luật nền hết hiệu lực">Luật nền hết hiệu lực</span><span class="leg-current" data-en="Current base law" data-vi="Luật nền hiện hành">Luật nền hiện hành</span><span class="leg-amend" data-en="Amending instrument" data-vi="Văn bản sửa đổi">Văn bản sửa đổi</span><span class="leg-reading" data-en="Consolidated reading text" data-vi="Văn bản hợp nhất để đọc">Văn bản hợp nhất để đọc</span></div>
+<div class="status-box" id="legalNodeInfo"><div class="status-title" data-en="Click a document" data-vi="Bấm vào một văn bản">Bấm vào một văn bản</div><div data-en="Inspect its role in the chain, rather than comparing publication dates alone." data-vi="Xem vai trò của nó trong chuỗi, thay vì chỉ so sánh ngày ban hành.">Xem vai trò của nó trong chuỗi, thay vì chỉ so sánh ngày ban hành.</div></div>
+<div class="timeline"><div class="timeline-point" style="left:4%"></div><div class="timeline-label" style="left:4%">01/07/2016<br>Law 80 starts</div><div class="timeline-point" style="left:56%"></div><div class="timeline-label" style="left:56%">01/04/2025<br>Law 64 starts</div><div class="timeline-point" style="left:74%"></div><div class="timeline-label" style="left:74%">01/07/2025<br>Law 87 applies</div><div class="timeline-point" style="left:92%"></div><div class="timeline-label" style="left:92%">11/08/2025<br>Consolidation</div></div>
+<figcaption data-en="A consolidated text improves readability but does not erase the identity and legal role of the base and amending instruments." data-vi="Văn bản hợp nhất giúp đọc thuận tiện nhưng không xóa định danh và vai trò pháp lý của luật nền cùng văn bản sửa đổi.">Văn bản hợp nhất giúp đọc thuận tiện nhưng không xóa định danh và vai trò pháp lý của luật nền cùng văn bản sửa đổi.</figcaption></figure>
+<figure class="figure"><div class="figure-head"><div class="figure-title"><span class="figure-num">Figure 6</span><span data-en="Applicable-law date lab" data-vi="Phòng thí nghiệm xác định luật áp dụng theo ngày">Phòng thí nghiệm xác định luật áp dụng theo ngày</span></div></div>
+<div class="date-lab"><div class="date-control"><label for="legalDate" class="sans" data-en="Date of the legal event" data-vi="Ngày xảy ra sự kiện pháp lý">Ngày xảy ra sự kiện pháp lý</label><input id="legalDate" type="date" value="2025-07-15"><button class="mini-btn" style="margin-top:10px" onclick="evaluateLegalDate()" data-en="Evaluate" data-vi="Đối chiếu">Đối chiếu</button><div class="callout note" style="margin-bottom:0"><strong data-en="Do not stop at document level" data-vi="Không dừng ở cấp văn bản">Không dừng ở cấp văn bản</strong><span data-en="Partial effectiveness requires provision-level checks." data-vi="Hiệu lực một phần đòi hỏi kiểm tra tới điều, khoản đang hỏi.">Hiệu lực một phần đòi hỏi kiểm tra tới điều, khoản đang hỏi.</span></div></div><div class="date-result" id="legalDateResult"></div></div>
+<figcaption data-en="The output distinguishes the base law, the amendment that shapes the current wording, and the consolidated text used as a reading aid." data-vi="Đầu ra tách luật nền, văn bản sửa đổi làm thay đổi nội dung hiện hành và văn bản hợp nhất dùng để đọc.">Đầu ra tách luật nền, văn bản sửa đổi làm thay đổi nội dung hiện hành và văn bản hợp nhất dùng để đọc.</figcaption></figure>
+
+<h2 id="sec8" data-en="8. Scientific Records Also Have Version Histories" data-vi="8. Hồ sơ nghiên cứu cũng có lịch sử phiên bản">8. Hồ sơ nghiên cứu cũng có lịch sử phiên bản</h2>
+<p data-en="A scientific claim may appear in a preprint, revised preprint, conference paper, version of record, correction, expression of concern, or retraction. These are related records—not interchangeable copies." data-vi="Một kết luận khoa học có thể xuất hiện trong preprint, preprint sửa đổi, bài hội nghị, bản xuất bản chính thức, đính chính, cảnh báo quan ngại hoặc rút bài. Đây là các hồ sơ có quan hệ, không phải những bản sao có thể hoán đổi.">Một kết luận khoa học có thể xuất hiện trong preprint, preprint sửa đổi, bài hội nghị, bản xuất bản chính thức, đính chính, cảnh báo quan ngại hoặc rút bài. Đây là các hồ sơ có quan hệ, không phải những bản sao có thể hoán đổi.</p>
+<figure class="figure"><div class="figure-head"><div class="figure-title"><span class="figure-num">Figure 7</span><span data-en="Research version graph" data-vi="Đồ thị phiên bản nghiên cứu">Đồ thị phiên bản nghiên cứu</span></div></div>
+<div class="graph" id="researchGraph"><div class="node reading" data-rnode="pre1" onclick="explainResearchNode(this)">Preprint v1<br><small>Discovery record</small></div><span class="edge">→</span><div class="node reading" data-rnode="pre2" onclick="explainResearchNode(this)">Preprint v2<br><small>Revised analysis</small></div><span class="edge">→</span><div class="node current" data-rnode="vor" onclick="explainResearchNode(this)">Version of Record<br><small>DOI / publisher</small></div><span class="edge">→</span><div class="node amend" data-rnode="corr" onclick="explainResearchNode(this)">Correction<br><small>Post-publication update</small></div><span class="edge">↘</span><div class="node old" data-rnode="retr" onclick="explainResearchNode(this)">Retraction / concern<br><small>Status-changing event</small></div></div>
+<div class="status-box" id="researchNodeInfo"><div class="status-title" data-en="Click a research record" data-vi="Bấm vào một hồ sơ nghiên cứu">Bấm vào một hồ sơ nghiên cứu</div><div data-en="Inspect what it can support and which related records must also be checked." data-vi="Xem hồ sơ đó có thể hỗ trợ kết luận nào và cần kiểm tra thêm hồ sơ liên quan nào.">Xem hồ sơ đó có thể hỗ trợ kết luận nào và cần kiểm tra thêm hồ sơ liên quan nào.</div></div>
+<figcaption data-en="The preferred record depends on the question. A preprint can establish chronology, while a correction or retraction may be essential for the current reliability status." data-vi="Hồ sơ ưu tiên phụ thuộc câu hỏi. Preprint có thể chứng minh trình tự thời gian, còn đính chính hoặc rút bài có thể quyết định trạng thái tin cậy hiện tại.">Hồ sơ ưu tiên phụ thuộc câu hỏi. Preprint có thể chứng minh trình tự thời gian, còn đính chính hoặc rút bài có thể quyết định trạng thái tin cậy hiện tại.</figcaption></figure>
+<div class="formula-card"><div class="formula-label"><span data-en="Illustrative research record utility" data-vi="Điểm hữu ích hồ sơ nghiên cứu minh họa">Điểm hữu ích hồ sơ nghiên cứu minh họa</span><span class="illustrative" data-en="Task-dependent" data-vi="Phụ thuộc nhiệm vụ">Phụ thuộc nhiệm vụ</span></div><div class="eq"><div class="math-target" data-tex="U_r=0.28I+0.22V+0.18M+0.17S+0.15X"></div><div class="eq-fallback">U = identity + version status + metadata + source + extractability</div></div><div class="formula-explain"><div class="term-grid"><div><code>I</code> identifier confidence</div><div><code>V</code> version/status confidence</div><div><code>M</code> metadata completeness</div><div><code>S</code> source authority</div><div><code>X</code> extractability</div></div><div class="worked-example" data-en="A publisher record can score highly on identity and version status even when the full text is inaccessible. A repository copy can be better for text extraction but still require relation matching to the version of record." data-vi="Hồ sơ nhà xuất bản có thể rất mạnh về định danh và trạng thái phiên bản dù không truy cập được toàn văn. Bản trong kho có thể tốt hơn để trích xuất nội dung nhưng vẫn phải nối quan hệ với bản xuất bản chính thức.">Hồ sơ nhà xuất bản có thể rất mạnh về định danh và trạng thái phiên bản dù không truy cập được toàn văn. Bản trong kho có thể tốt hơn để trích xuất nội dung nhưng vẫn phải nối quan hệ với bản xuất bản chính thức.</div></div></div>
+
+<h2 id="sec9" data-en="9. Deduplicate by Identity, Not URL" data-vi="9. Khử trùng lặp theo định danh, không theo URL">9. Khử trùng lặp theo định danh, không theo URL</h2>
+<p data-en="The same legal document or article can appear on many domains and in many file formats. URL equality is therefore a weak duplicate test." data-vi="Cùng một văn bản pháp lý hoặc bài nghiên cứu có thể xuất hiện trên nhiều tên miền và định dạng. Vì vậy, so URL là phép kiểm trùng lặp yếu.">Cùng một văn bản pháp lý hoặc bài nghiên cứu có thể xuất hiện trên nhiều tên miền và định dạng. Vì vậy, so URL là phép kiểm trùng lặp yếu.</p>
+<div class="two-col"><div class="card"><h4 data-en="Legal canonical key" data-vi="Khóa chuẩn pháp lý">Khóa chuẩn pháp lý</h4><div class="codebox">normalize(type) + normalize(number) + year + issuing_body
+≈ "LUAT|64|2025|QH15"</div><p data-en="Use title similarity and promulgation date as checks, not as the sole identifier." data-vi="Dùng độ giống tiêu đề và ngày ban hành để kiểm tra, không dùng làm định danh duy nhất.">Dùng độ giống tiêu đề và ngày ban hành để kiểm tra, không dùng làm định danh duy nhất.</p></div><div class="card"><h4 data-en="Research canonical key" data-vi="Khóa chuẩn nghiên cứu">Khóa chuẩn nghiên cứu</h4><div class="codebox">lowercase(trim(doi))
+else: title fingerprint + first author + year</div><p data-en="Keep preprint DOI and publisher DOI as related identifiers rather than forcing them into one record." data-vi="Giữ DOI preprint và DOI nhà xuất bản như định danh có quan hệ, không ép nhập thành một bản ghi.">Giữ DOI preprint và DOI nhà xuất bản như định danh có quan hệ, không ép nhập thành một bản ghi.</p></div></div>
+<figure class="figure"><div class="figure-head"><div class="figure-title"><span class="figure-num">Figure 8</span><span data-en="Duplicate resolution" data-vi="Phân giải bản trùng">Phân giải bản trùng</span></div><button class="mini-btn" onclick="resolveDuplicates()" data-en="Resolve" data-vi="Phân giải">Phân giải</button></div>
+<table class="score-table" id="duplicateTable"><thead><tr><th data-en="Candidate" data-vi="Ứng viên">Ứng viên</th><th>ID</th><th data-en="Title fingerprint" data-vi="Vân tay tiêu đề">Vân tay tiêu đề</th><th>Hash</th><th data-en="Result" data-vi="Kết quả">Kết quả</th></tr></thead><tbody>
+<tr data-group="A"><td>Official HTML — Law 64/2025</td><td>64/2025/QH15</td><td>0.99</td><td>a91…</td><td class="dup-result">—</td></tr>
+<tr data-group="A"><td>Official PDF — Law 64/2025</td><td>64/2025/QH15</td><td>0.98</td><td>b72…</td><td class="dup-result">—</td></tr>
+<tr data-group="B"><td>Preprint record</td><td>10.1234/pre.01</td><td>0.94</td><td>c31…</td><td class="dup-result">—</td></tr>
+<tr data-group="C"><td>Publisher version</td><td>10.5678/j.2026.2</td><td>0.96</td><td>d48…</td><td class="dup-result">—</td></tr>
+</tbody></table><figcaption data-en="The legal HTML and PDF are manifestations of one instrument. The preprint and publisher version are related works but remain distinct records." data-vi="HTML và PDF pháp lý là hai biểu hiện của cùng một văn bản. Preprint và bản nhà xuất bản là các công trình có quan hệ nhưng vẫn là hồ sơ riêng.">HTML và PDF pháp lý là hai biểu hiện của cùng một văn bản. Preprint và bản nhà xuất bản là các công trình có quan hệ nhưng vẫn là hồ sơ riêng.</figcaption></figure>
+
+<h2 id="sec10" data-en="10. Claim–Evidence Alignment" data-vi="10. Căn chỉnh kết luận–bằng chứng">10. Căn chỉnh kết luận–bằng chứng</h2>
+<p data-en="A source can be relevant to the topic and still fail to support a specific sentence. Score support at the claim level and preserve contradictory evidence." data-vi="Một nguồn có thể liên quan chủ đề nhưng vẫn không hỗ trợ câu kết luận cụ thể. Cần chấm mức hỗ trợ ở cấp kết luận và giữ cả bằng chứng mâu thuẫn.">Một nguồn có thể liên quan chủ đề nhưng vẫn không hỗ trợ câu kết luận cụ thể. Cần chấm mức hỗ trợ ở cấp kết luận và giữ cả bằng chứng mâu thuẫn.</p>
+<div class="formula-card"><div class="formula-label"><span data-en="Illustrative claim support" data-vi="Điểm hỗ trợ kết luận minh họa">Điểm hỗ trợ kết luận minh họa</span><span class="illustrative" data-en="Not a probability" data-vi="Không phải xác suất">Không phải xác suất</span></div><div class="eq"><div class="math-target" data-tex="Support(c,e)=0.35Entail+0.25Authority+0.20Temporal+0.12Specificity+0.08Integrity"></div><div class="eq-fallback">Support = entailment + authority + temporal fit + specificity + integrity</div></div></div>
+<figure class="figure"><div class="figure-head"><div class="figure-title"><span class="figure-num">Figure 9</span><span data-en="Claim–evidence matrix" data-vi="Ma trận kết luận–bằng chứng">Ma trận kết luận–bằng chứng</span></div><button class="mini-btn" onclick="scoreEvidence()" data-en="Score evidence" data-vi="Chấm bằng chứng">Chấm bằng chứng</button></div>
+<div style="overflow:auto"><table class="matrix" id="evidenceMatrix"><thead><tr><th data-en="Claim" data-vi="Kết luận">Kết luận</th><th data-en="Evidence" data-vi="Bằng chứng">Bằng chứng</th><th data-en="Relation" data-vi="Quan hệ">Quan hệ</th><th data-en="Temporal fit" data-vi="Khớp thời gian">Khớp thời gian</th><th data-en="Score" data-vi="Điểm">Điểm</th></tr></thead><tbody>
+<tr data-base=".95,.98,.98,.92,.95"><td data-en="Law 64 is the base law from 1 Apr 2025" data-vi="Luật 64 là luật nền từ 01/04/2025">Luật 64 là luật nền từ 01/04/2025</td><td data-en="Official legal database record" data-vi="Bản ghi CSDL pháp luật chính thức">Bản ghi CSDL pháp luật chính thức</td><td><select><option value="1">supports</option><option value=".4">mentions</option><option value="0">contradicts</option></select></td><td><select><option value="1">exact</option><option value=".6">partial</option><option value=".1">mismatch</option></select></td><td class="matrix-score">—</td></tr>
+<tr data-base=".72,.88,.75,.80,.90"><td data-en="The latest text is always the applicable rule" data-vi="Văn bản mới nhất luôn là quy định áp dụng">Văn bản mới nhất luôn là quy định áp dụng</td><td data-en="A search-result snippet" data-vi="Đoạn trích kết quả tìm kiếm">Đoạn trích kết quả tìm kiếm</td><td><select><option value=".4">mentions</option><option value="1">supports</option><option value="0" selected>contradicts</option></select></td><td><select><option value=".6">partial</option><option value="1">exact</option><option value=".1">mismatch</option></select></td><td class="matrix-score">—</td></tr>
+<tr data-base=".90,.96,.94,.88,.98"><td data-en="The article received a post-publication correction" data-vi="Bài báo có đính chính sau xuất bản">Bài báo có đính chính sau xuất bản</td><td>Crossmark / publisher update</td><td><select><option value="1">supports</option><option value=".4">mentions</option><option value="0">contradicts</option></select></td><td><select><option value="1">exact</option><option value=".6">partial</option><option value=".1">mismatch</option></select></td><td class="matrix-score">—</td></tr>
+</tbody></table></div>
+<figcaption data-en="A contradiction is not simply a low score; it should be represented explicitly so the synthesizer can state the disagreement." data-vi="Bằng chứng phản bác không chỉ là điểm thấp; phải biểu diễn rõ để bộ tổng hợp có thể nêu mâu thuẫn.">Bằng chứng phản bác không chỉ là điểm thấp; phải biểu diễn rõ để bộ tổng hợp có thể nêu mâu thuẫn.</figcaption></figure>
+
+<h2 id="sec11" data-en="11. Build a Provenance Record Before Writing" data-vi="11. Dựng hồ sơ truy xuất trước khi viết">11. Dựng hồ sơ truy xuất trước khi viết</h2>
+<p data-en="Provenance should be generated during retrieval, not reconstructed after the answer. At minimum, preserve the original URL, canonical identifier, retrieval time, source type, relationship, exact passage, and transformation history." data-vi="Hồ sơ truy xuất phải được tạo trong lúc lấy dữ liệu, không phải dựng lại sau khi đã viết câu trả lời. Tối thiểu cần giữ URL gốc, định danh chuẩn, thời điểm tải, loại nguồn, quan hệ, đoạn trích chính xác và lịch sử biến đổi.">Hồ sơ truy xuất phải được tạo trong lúc lấy dữ liệu, không phải dựng lại sau khi đã viết câu trả lời. Tối thiểu cần giữ URL gốc, định danh chuẩn, thời điểm tải, loại nguồn, quan hệ, đoạn trích chính xác và lịch sử biến đổi.</p>
+<figure class="figure"><div class="figure-head"><div class="figure-title"><span class="figure-num">Figure 10</span><span data-en="Provenance builder" data-vi="Bộ dựng hồ sơ truy xuất">Bộ dựng hồ sơ truy xuất</span></div><button class="mini-btn" onclick="buildProvenance()" data-en="Build record" data-vi="Dựng bản ghi">Dựng bản ghi</button></div>
+<div class="mini-flow" id="provFlow"><div class="mini-step">1. Fetch</div><div class="mini-step">2. Hash</div><div class="mini-step">3. Extract</div><div class="mini-step">4. Relate</div><div class="mini-step">5. Cite</div></div>
+<div class="schema" id="provenanceJson" style="margin-top:12px">{ "status": "ready" }</div>
+<figcaption data-en="A content hash helps detect later changes, but it does not prove authenticity by itself. Authenticity still depends on source authority, signatures, official publication, or other domain controls." data-vi="Hash nội dung giúp phát hiện thay đổi về sau nhưng tự nó không chứng minh tính xác thực. Tính xác thực vẫn phụ thuộc thẩm quyền nguồn, chữ ký, công bố chính thức hoặc cơ chế kiểm soát của lĩnh vực.">Hash nội dung giúp phát hiện thay đổi về sau nhưng tự nó không chứng minh tính xác thực. Tính xác thực vẫn phụ thuộc thẩm quyền nguồn, chữ ký, công bố chính thức hoặc cơ chế kiểm soát của lĩnh vực.</figcaption></figure>
+
+<h2 id="sec12" data-en="12. High-Risk Failure Modes" data-vi="12. Các sai hỏng rủi ro cao">12. Các sai hỏng rủi ro cao</h2>
+<div class="two-col"><div class="card"><h4 data-en="Legal failures" data-vi="Sai hỏng pháp lý">Sai hỏng pháp lý</h4><ul><li data-en="Treating promulgation date as effective date" data-vi="Coi ngày ban hành là ngày hiệu lực">Coi ngày ban hành là ngày hiệu lực</li><li data-en="Ignoring partial expiry or provision-level amendments" data-vi="Bỏ qua hết hiệu lực một phần hoặc sửa đổi theo điều khoản">Bỏ qua hết hiệu lực một phần hoặc sửa đổi theo điều khoản</li><li data-en="Using a consolidated text as if it were a new law" data-vi="Coi văn bản hợp nhất như một luật mới">Coi văn bản hợp nhất như một luật mới</li><li data-en="Quoting a mirror without verifying the official record" data-vi="Trích bản sao mà không đối chiếu nguồn chính thức">Trích bản sao mà không đối chiếu nguồn chính thức</li></ul></div>
+<div class="card"><h4 data-en="Research failures" data-vi="Sai hỏng NCKH">Sai hỏng NCKH</h4><ul><li data-en="Mixing preprint results with the version of record" data-vi="Trộn kết quả preprint với bản xuất bản chính thức">Trộn kết quả preprint với bản xuất bản chính thức</li><li data-en="Missing corrections, concerns, or retractions" data-vi="Bỏ sót đính chính, cảnh báo hoặc rút bài">Bỏ sót đính chính, cảnh báo hoặc rút bài</li><li data-en="Deduplicating related versions into one record" data-vi="Gộp các phiên bản liên quan thành một bản ghi">Gộp các phiên bản liên quan thành một bản ghi</li><li data-en="Inferring full-text claims from metadata only" data-vi="Suy ra kết luận toàn văn chỉ từ metadata">Suy ra kết luận toàn văn chỉ từ metadata</li></ul></div></div>
+<div class="callout correction"><strong data-en="Prompt injection inside retrieved pages" data-vi="Prompt injection nằm trong trang được tải">Prompt injection nằm trong trang được tải</strong><span data-en="Treat webpage instructions as untrusted content. The extractor should separate evidence from commands, scripts, hidden text, and instructions addressed to an AI agent." data-vi="Phải coi chỉ dẫn trong trang web là nội dung không đáng tin. Bộ trích xuất cần tách bằng chứng khỏi câu lệnh, script, chữ ẩn và chỉ dẫn nhắm tới tác tử AI.">Phải coi chỉ dẫn trong trang web là nội dung không đáng tin. Bộ trích xuất cần tách bằng chứng khỏi câu lệnh, script, chữ ẩn và chỉ dẫn nhắm tới tác tử AI.</span></div>
+<div class="takeaway"><h4 data-en="Minimum release checklist" data-vi="Danh mục kiểm tra tối thiểu trước khi xuất câu trả lời">Danh mục kiểm tra tối thiểu trước khi xuất câu trả lời</h4><ol><li data-en="The canonical identity is resolved." data-vi="Đã phân giải định danh chuẩn.">Đã phân giải định danh chuẩn.</li><li data-en="Authority and source rung are recorded." data-vi="Đã ghi thẩm quyền và bậc nguồn.">Đã ghi thẩm quyền và bậc nguồn.</li><li data-en="Effective/version status is checked at the requested time." data-vi="Đã kiểm tra hiệu lực/phiên bản tại thời điểm được hỏi.">Đã kiểm tra hiệu lực/phiên bản tại thời điểm được hỏi.</li><li data-en="Related amendments, corrections, or retractions are traversed." data-vi="Đã lần theo sửa đổi, đính chính hoặc rút bài liên quan.">Đã lần theo sửa đổi, đính chính hoặc rút bài liên quan.</li><li data-en="Every material claim has a supporting span or is labeled inference." data-vi="Mọi kết luận trọng yếu có đoạn hỗ trợ hoặc được ghi rõ là suy luận.">Mọi kết luận trọng yếu có đoạn hỗ trợ hoặc được ghi rõ là suy luận.</li><li data-en="Conflicts and missing evidence are disclosed." data-vi="Đã nêu mâu thuẫn và bằng chứng còn thiếu.">Đã nêu mâu thuẫn và bằng chứng còn thiếu.</li></ol></div>
+
+<h2 id="sec13" data-en="13. Practice Scenarios" data-vi="13. Tình huống thực hành">13. Tình huống thực hành</h2>
+<details class="exercise"><summary data-en="Exercise A — What does ‘latest legal document’ mean?" data-vi="Bài A — “Văn bản pháp lý mới nhất” nghĩa là gì?">Bài A — “Văn bản pháp lý mới nhất” nghĩa là gì?</summary><div class="exercise-body"><p data-en="Design a query plan for: ‘Find the latest regulation on X.’ Produce five outputs: latest promulgated instrument, current base instrument, latest amendment, consolidated reading text, and the rule applicable on 15 May 2025." data-vi="Thiết kế kế hoạch truy vấn cho câu: “Tìm quy định mới nhất về X.” Xuất năm kết quả: văn bản ban hành mới nhất, văn bản nền hiện hành, sửa đổi mới nhất, bản hợp nhất để đọc và quy định áp dụng ngày 15/05/2025.">Thiết kế kế hoạch truy vấn cho câu: “Tìm quy định mới nhất về X.” Xuất năm kết quả: văn bản ban hành mới nhất, văn bản nền hiện hành, sửa đổi mới nhất, bản hợp nhất để đọc và quy định áp dụng ngày 15/05/2025.</p><div class="worked-example"><strong data-en="Expected reasoning" data-vi="Cách suy luận mong đợi">Cách suy luận mong đợi</strong>: discovery → canonical ID → official record → effective dates → amendment edges → provision-level check → claim citations.</div></div></details>
+<details class="exercise"><summary data-en="Exercise B — Preprint versus final article" data-vi="Bài B — Preprint và bài xuất bản chính thức">Bài B — Preprint và bài xuất bản chính thức</summary><div class="exercise-body"><p data-en="Given two similar titles with different DOIs, determine whether they are duplicates, versions, or separate studies. Check authors, abstract changes, methods, dates, relation metadata, and publisher updates." data-vi="Với hai tiêu đề gần giống nhưng DOI khác nhau, xác định chúng là bản trùng, các phiên bản hay hai nghiên cứu riêng. Kiểm tra tác giả, thay đổi tóm tắt, phương pháp, ngày tháng, metadata quan hệ và cập nhật của nhà xuất bản.">Với hai tiêu đề gần giống nhưng DOI khác nhau, xác định chúng là bản trùng, các phiên bản hay hai nghiên cứu riêng. Kiểm tra tác giả, thay đổi tóm tắt, phương pháp, ngày tháng, metadata quan hệ và cập nhật của nhà xuất bản.</p></div></details>
+<details class="exercise"><summary data-en="Exercise C — Build an auditable answer" data-vi="Bài C — Xây câu trả lời có thể kiểm toán">Bài C — Xây câu trả lời có thể kiểm toán</summary><div class="exercise-body"><p data-en="Write three claims. For each claim, store the source ID, exact passage, retrieval time, transformation steps, support relation, and uncertainty note. Then remove one source and observe which claims become unsupported." data-vi="Viết ba kết luận. Với mỗi kết luận, lưu ID nguồn, đoạn trích chính xác, thời điểm tải, các bước biến đổi, quan hệ hỗ trợ và ghi chú bất định. Sau đó loại một nguồn và xem kết luận nào mất căn cứ.">Viết ba kết luận. Với mỗi kết luận, lưu ID nguồn, đoạn trích chính xác, thời điểm tải, các bước biến đổi, quan hệ hỗ trợ và ghi chú bất định. Sau đó loại một nguồn và xem kết luận nào mất căn cứ.</p></div></details>
+<div class="callout good"><strong data-en="Final principle" data-vi="Nguyên tắc kết thúc">Nguyên tắc kết thúc</strong><span data-en="Do not ask only ‘Did the agent find a source?’ Ask: ‘Did it reconstruct the correct evidence object for the requested time, version, and claim?’" data-vi="Đừng chỉ hỏi “tác tử có tìm được nguồn không?”. Hãy hỏi: “Nó có tái dựng đúng đối tượng bằng chứng cho thời điểm, phiên bản và kết luận đang cần không?”.">Đừng chỉ hỏi “tác tử có tìm được nguồn không?”. Hãy hỏi: “Nó có tái dựng đúng đối tượng bằng chứng cho thời điểm, phiên bản và kết luận đang cần không?”.</span></div>
+<div class="reference-list"><strong data-en="Suggested official data interfaces" data-vi="Giao diện dữ liệu chính thức gợi ý">Giao diện dữ liệu chính thức gợi ý</strong>
+<a href="https://vbpl.moj.gov.vn/" target="_blank" rel="noopener">Cơ sở dữ liệu quốc gia về văn bản pháp luật</a>
+<a href="https://congbao.chinhphu.vn/" target="_blank" rel="noopener">Công báo điện tử nước CHXHCN Việt Nam</a>
+<a href="https://www.crossref.org/documentation/retrieve-metadata/" target="_blank" rel="noopener">Crossref metadata & REST API</a>
+<a href="https://www.ncbi.nlm.nih.gov/home/develop/api/" target="_blank" rel="noopener">NCBI E-utilities</a>
+<a href="https://developers.openalex.org/" target="_blank" rel="noopener">OpenAlex API</a>
+</div>
+</article></main>
+<footer><strong data-en="Advanced Web Grounding for Legal & Research Evidence" data-vi="Web-Grounding chuyên sâu: Pháp lý & Nghiên cứu">Web-Grounding chuyên sâu: Pháp lý & Nghiên cứu</strong><br><span data-en="Interactive educational explainer · Author: NDT-PRD · Single-file HTML" data-vi="Bài học tương tác · Tác giả: NDT-PRD · HTML một tệp">Bài học tương tác · Tác giả: NDT-PRD · HTML một tệp</span></footer>
+<script>
+let lang='vi';
+const translatedAttrs=['title','placeholder'];
+function setLang(next){
+  lang=next; document.documentElement.lang=next; document.body.classList.toggle('vi',next==='vi');
+  document.getElementById('langEn').classList.toggle('active',next==='en');
+  document.getElementById('langVi').classList.toggle('active',next==='vi');
+  document.querySelectorAll('[data-en][data-vi]').forEach(el=>{el.innerHTML=el.dataset[next]});
+  if(document.getElementById('queryInput')) document.getElementById('queryInput').value=queryDomain==='legal'?(next==='vi'?'Quy định hiện hành về xây dựng văn bản quy phạm pháp luật là văn bản nào?':'Which legal instrument currently governs the making of normative legal documents?'):(next==='vi'?'Bằng chứng mới nhất về tác động của AI tạo sinh đối với kết quả học tập là gì?':'What is the latest evidence on generative AI and learning outcomes?');
+  buildAdvancedPipeline(); updateAdvancedPipeline(); buildQueryPack(); updateCrawler(); evaluateLegalDate();
+}
+
+const pipelineData={
+ legal:{
+  en:[
+   ['Question frame','LLM','Separate “newest”, “effective now”, “applicable at date t”, and “consolidated text”.'],
+   ['Source plan','Harness','Prioritize official legal databases, the issuing body, and the e-Gazette before mirrors.'],
+   ['Discovery','Harness','Search by instrument number, title variants, subject, issuing body, and date constraints.'],
+   ['Identity resolution','Harness','Normalize type, number, year, issuing body, and canonical official record.'],
+   ['Extract structure','Harness','Preserve chapters, articles, clauses, annexes, status fields, and source spans.'],
+   ['Traverse relations','Harness','Follow replaces, amends, repeals, guides, consolidates, and corrects edges.'],
+   ['Temporal test','LLM','Evaluate effective start/end and provision-level changes for the queried date.'],
+   ['Evidence answer','LLM','State base law, amendment, applicable wording, uncertainty, and claim-level citations.']
+  ],
+  vi:[
+   ['Định khung câu hỏi','LLM','Tách “mới ban hành”, “đang hiệu lực”, “áp dụng tại ngày t” và “văn bản hợp nhất”.'],
+   ['Lập kế hoạch nguồn','Harness','Ưu tiên CSDL pháp luật chính thức, cơ quan ban hành và Công báo trước các bản sao.'],
+   ['Phát hiện','Harness','Tìm theo số hiệu, biến thể tiêu đề, chủ đề, cơ quan ban hành và ràng buộc thời gian.'],
+   ['Phân giải định danh','Harness','Chuẩn hóa loại, số, năm, cơ quan ban hành và bản ghi chính thức chuẩn.'],
+   ['Trích xuất cấu trúc','Harness','Giữ chương, điều, khoản, phụ lục, trường trạng thái và vị trí đoạn nguồn.'],
+   ['Lần theo quan hệ','Harness','Theo các cạnh thay thế, sửa đổi, bãi bỏ, hướng dẫn, hợp nhất và đính chính.'],
+   ['Kiểm tra thời gian','LLM','Đánh giá bắt đầu/kết thúc hiệu lực và thay đổi theo điều khoản tại ngày được hỏi.'],
+   ['Trả lời có bằng chứng','LLM','Nêu luật nền, sửa đổi, nội dung áp dụng, bất định và trích dẫn theo kết luận.']
+  ]
+ },
+ research:{
+  en:[
+   ['Question frame','LLM','Separate discovery date, publication status, version of record, and current integrity status.'],
+   ['Registry plan','Harness','Query DOI registries, publisher metadata, domain indexes, and repositories.'],
+   ['Discovery','Harness','Search title, authors, concepts, identifiers, dates, and citation neighborhoods.'],
+   ['Entity resolution','Harness','Normalize DOI/PMID/OpenAlex IDs and distinguish manifestations from related versions.'],
+   ['Extract evidence','Harness','Preserve abstract sections, methods, results, tables, limitations, and source spans.'],
+   ['Version traversal','Harness','Follow is-preprint-of, is-version-of, update-to, correction, concern, and retraction links.'],
+   ['Integrity test','LLM','Check whether the selected record is current and whether later events change its interpretation.'],
+   ['Evidence answer','LLM','Synthesize claims with version labels, status warnings, and exact supporting passages.']
+  ],
+  vi:[
+   ['Định khung câu hỏi','LLM','Tách ngày phát hiện, trạng thái xuất bản, bản chính thức và trạng thái toàn vẹn hiện tại.'],
+   ['Lập kế hoạch registry','Harness','Truy vấn registry DOI, metadata nhà xuất bản, chỉ mục chuyên ngành và kho lưu trữ.'],
+   ['Phát hiện','Harness','Tìm tiêu đề, tác giả, khái niệm, định danh, thời gian và mạng trích dẫn.'],
+   ['Phân giải thực thể','Harness','Chuẩn hóa DOI/PMID/OpenAlex ID và tách biểu hiện khỏi phiên bản có quan hệ.'],
+   ['Trích xuất bằng chứng','Harness','Giữ cấu trúc tóm tắt, phương pháp, kết quả, bảng, hạn chế và vị trí đoạn nguồn.'],
+   ['Lần theo phiên bản','Harness','Theo quan hệ preprint-of, version-of, update-to, correction, concern và retraction.'],
+   ['Kiểm tra toàn vẹn','LLM','Kiểm tra hồ sơ đang chọn có còn hiện hành và sự kiện sau xuất bản có đổi cách diễn giải không.'],
+   ['Trả lời có bằng chứng','LLM','Tổng hợp với nhãn phiên bản, cảnh báo trạng thái và đoạn hỗ trợ chính xác.']
+  ]
+ }
+};
+let pipelineDomain='legal',advancedIndex=0,advancedTimer=null;
+function setPipelineDomain(domain){pipelineDomain=domain;document.getElementById('pipeLegal').classList.toggle('active',domain==='legal');document.getElementById('pipeResearch').classList.toggle('active',domain==='research');resetAdvanced();buildAdvancedPipeline();updateAdvancedPipeline()}
+function buildAdvancedPipeline(){const root=document.getElementById('advancedPipeline');if(!root)return;root.innerHTML='';pipelineData[pipelineDomain][lang].forEach((s,i)=>{const node=document.createElement('div');node.className='pstep '+(s[1]==='LLM'?'llm':'harness');node.innerHTML=`${s[0]}<span class="tag">${s[1]}</span>`;node.onclick=()=>{advancedIndex=i;updateAdvancedPipeline()};root.appendChild(node);if(i<pipelineData[pipelineDomain][lang].length-1){const arrow=document.createElement('span');arrow.className='parr';arrow.textContent='→';root.appendChild(arrow)}})}
+function updateAdvancedPipeline(){const steps=pipelineData[pipelineDomain][lang];document.querySelectorAll('#advancedPipeline .pstep').forEach((n,i)=>{n.classList.toggle('active',i===advancedIndex);n.classList.toggle('done',i<advancedIndex)});const s=steps[advancedIndex];document.getElementById('advancedInfo').innerHTML=`<h4>${s[0]} <span class="badge ${s[1]==='LLM'?'llm':'harness'}">${s[1]}</span></h4>${s[2]}`}
+function stepAdvanced(delta){advancedIndex=Math.max(0,Math.min(pipelineData[pipelineDomain][lang].length-1,advancedIndex+delta));updateAdvancedPipeline()}
+function togglePipeline(){if(advancedTimer){clearInterval(advancedTimer);advancedTimer=null;return}advancedTimer=setInterval(()=>{if(advancedIndex>=pipelineData[pipelineDomain][lang].length-1){clearInterval(advancedTimer);advancedTimer=null}else{advancedIndex++;updateAdvancedPipeline()}},750)}
+function resetAdvanced(){if(advancedTimer)clearInterval(advancedTimer);advancedTimer=null;advancedIndex=0;updateAdvancedPipeline()}
+
+function showDomainTab(id,btn){['legalSources','researchSources'].forEach(x=>document.getElementById(x).classList.toggle('active',x===id));btn.parentElement.querySelectorAll('.tab-btn').forEach(x=>x.classList.toggle('active',x===btn))}
+function showExtractTab(id,btn){['extractRaw','extractLayout','extractRecord'].forEach(x=>document.getElementById(x).classList.toggle('active',x===id));btn.parentElement.querySelectorAll('.tab-btn').forEach(x=>x.classList.toggle('active',x===btn))}
+
+let queryDomain='legal';
+function setQueryDomain(domain){queryDomain=domain;document.getElementById('queryLegal').classList.toggle('active',domain==='legal');document.getElementById('queryResearch').classList.toggle('active',domain==='research');document.getElementById('queryInput').value=domain==='legal'?(lang==='vi'?'Quy định hiện hành về xây dựng văn bản quy phạm pháp luật là văn bản nào?':'Which legal instrument currently governs the making of normative legal documents?'):(lang==='vi'?'Bằng chứng mới nhất về tác động của AI tạo sinh đối với kết quả học tập là gì?':'What is the latest evidence on generative AI and learning outcomes?');buildQueryPack()}
+function buildQueryPack(){const q=document.getElementById('queryInput').value.trim()||'…';let rows;if(queryDomain==='legal')rows=lang==='vi'?[`[GỐC] ${q}`,`[PHÁT HIỆN] site:vbpl.vn OR site:congbao.chinhphu.vn "${q}"`,`[ĐỊNH DANH] số hiệu + cơ quan ban hành + ngày ban hành`,`[HIỆU LỰC] hiệu lực từ / hết hiệu lực / hết hiệu lực một phần`,`[QUAN HỆ] sửa đổi OR bổ sung OR thay thế OR bãi bỏ OR hợp nhất`,`[THỜI ĐIỂM] quy định áp dụng tại ngày <t>`,`[ĐỐI CHIẾU] mở bản ghi chính thức + PDF/Công báo + văn bản liên quan`]:[`[ORIGINAL] ${q}`,`[DISCOVERY] site:vbpl.vn OR site:congbao.chinhphu.vn "${q}"`,`[IDENTITY] number + issuing body + promulgation date`,`[VALIDITY] effective from / expired / partially expired`,`[RELATIONS] amends OR replaces OR repeals OR consolidates`,`[TIME] rule applicable at date <t>`,`[VERIFY] official record + PDF/Gazette + related instruments`];else rows=lang==='vi'?[`[GỐC] ${q}`,`[PHÁT HIỆN] "${q}" systematic review OR meta-analysis`,`[ĐỊNH DANH] DOI OR PMID OR OpenAlex ID`,`[PHIÊN BẢN] preprint OR version of record OR accepted manuscript`,`[CẬP NHẬT] correction OR expression of concern OR retraction`,`[PHƯƠNG PHÁP] sample + design + outcome + effect size`,`[ĐỐI CHIẾU] publisher + Crossref/Crossmark + PubMed/NCBI`]:[`[ORIGINAL] ${q}`,`[DISCOVERY] "${q}" systematic review OR meta-analysis`,`[IDENTITY] DOI OR PMID OR OpenAlex ID`,`[VERSION] preprint OR version of record OR accepted manuscript`,`[UPDATE] correction OR expression of concern OR retraction`,`[METHOD] sample + design + outcome + effect size`,`[VERIFY] publisher + Crossref/Crossmark + PubMed/NCBI`];document.getElementById('queryPack').textContent=rows.join('\n')}
+
+function updateCrawler(){const r=+document.getElementById('rps').value,p=+document.getElementById('pages').value,c=+document.getElementById('cacheRate').value/100,retry=+document.getElementById('retryRate').value/100;document.getElementById('rpsV').textContent=r;document.getElementById('pagesV').textContent=p;document.getElementById('cacheV').textContent=Math.round(c*100)+'%';document.getElementById('retryV').textContent=Math.round(retry*100)+'%';const origin=Math.ceil(p*(1-c)*(1+retry));document.getElementById('originReq').textContent=origin;const pressure=Math.min(100,(r/10)*45+(origin/500)*35+retry*50);document.getElementById('crawlFill').style.width=pressure+'%';document.getElementById('crawlAdvice').textContent=pressure<35?(lang==='vi'?'Áp lực thấp — vẫn phải tuân theo giới hạn nguồn.':'Low pressure — still obey provider limits.'):pressure<65?(lang==='vi'?'Áp lực vừa — nên tăng cache và backoff.':'Moderate pressure — increase caching and backoff.'):(lang==='vi'?'Áp lực cao — giảm RPS, thu hẹp phạm vi hoặc dùng API/batch.':'High pressure — reduce RPS, narrow scope, or use API/batch.');document.getElementById('crawlMath').textContent=`origin ≈ ${p} × (1 − ${c.toFixed(2)}) × (1 + ${retry.toFixed(2)}) = ${origin}`}
+['rps','pages','cacheRate','retryRate'].forEach(id=>document.getElementById(id).addEventListener('input',updateCrawler));
+
+const legalInfo={
+ law80:{vi:['Luật nền cũ','Có hiệu lực từ 01/07/2016 và hết hiệu lực toàn bộ khi Luật 64 bắt đầu có hiệu lực ngày 01/04/2025. Dùng cho sự kiện thuộc giai đoạn hiệu lực của nó.'],en:['Former base law','Effective from 1 July 2016 and fully expired when Law 64 became effective on 1 April 2025. Use for events within its validity interval.']},
+ law64:{vi:['Luật nền hiện hành','Bắt đầu hiệu lực 01/04/2025. Sau 01/07/2025 phải đọc cùng các sửa đổi của Luật 87; trạng thái có thể là hết hiệu lực một phần đối với nội dung bị sửa.'],en:['Current base law','Effective from 1 April 2025. From 1 July 2025 it must be read with amendments in Law 87; amended provisions may carry partial-expiry status.']},
+ law87:{vi:['Văn bản sửa đổi','Có hiệu lực 01/07/2025 và thay đổi một số nội dung của Luật 64. Nó không thay thế toàn bộ định danh của luật nền.'],en:['Amending instrument','Effective from 1 July 2025 and changes selected provisions of Law 64. It does not replace the base law’s identity.']},
+ consolidated:{vi:['Văn bản hợp nhất','Bản 54/VBHN-VPQH xác thực ngày 11/08/2025 giúp đọc nội dung Luật 64 sau sửa đổi. Đây là bản hợp nhất, không phải một luật mới tạo ra hiệu lực độc lập.'],en:['Consolidated text','Consolidated Text 54/VBHN-VPQH authenticated on 11 August 2025 helps read Law 64 as amended. It is not a new law with independent legal effect.']}
+};
+function explainLegalNode(el){document.querySelectorAll('#legalGraph .node').forEach(n=>n.classList.toggle('active',n===el));const x=legalInfo[el.dataset.node][lang];document.getElementById('legalNodeInfo').innerHTML=`<div class="status-title">${x[0]}</div><div>${x[1]}</div>`}
+function evaluateLegalDate(){const raw=document.getElementById('legalDate').value;const t=new Date(raw+'T00:00:00');const d2016=new Date('2016-07-01'),d2025=new Date('2025-04-01'),dAmend=new Date('2025-07-01');let chip,title,body;if(!raw||isNaN(t)){chip='bad';title=lang==='vi'?'Ngày không hợp lệ':'Invalid date';body='—'}else if(t<d2016){chip='bad';title=lang==='vi'?'Ngoài phạm vi ví dụ':'Outside this example';body=lang==='vi'?'Cần tìm văn bản tiền nhiệm trước Luật 80/2015/QH13.':'Find the predecessor before Law 80/2015/QH13.'}else if(t<d2025){chip='warn';title='Luật 80/2015/QH13';body=lang==='vi'?'Luật 80 là luật nền áp dụng trong khoảng này. Vẫn cần kiểm tra văn bản sửa đổi và điều khoản cụ thể có hiệu lực tại ngày đã chọn.':'Law 80 is the base law in this interval. Still check amendments and the specific provision effective on the selected date.'}else if(t<dAmend){chip='good';title='Luật 64/2025/QH15';body=lang==='vi'?'Luật 64 đã có hiệu lực; Luật 87 chưa bắt đầu áp dụng. Không dùng bản hợp nhất tháng 8 để giả định rằng sửa đổi đã có hiệu lực sớm hơn.':'Law 64 is effective; Law 87 has not yet started. Do not use the August consolidation to backdate amendments.'}else{chip='good';title='Luật 64/2025/QH15 + Luật 87/2025/QH15';body=lang==='vi'?'Luật 64 là luật nền, đọc cùng sửa đổi có hiệu lực của Luật 87. Bản 54/VBHN-VPQH có thể dùng để đọc thuận tiện sau ngày xác thực, nhưng cần trích đúng luật nền/sửa đổi khi giải thích hiệu lực.':'Law 64 is the base law, read with effective amendments in Law 87. Consolidated Text 54 can aid reading after authentication, while legal effect should still be attributed to the base and amending laws.'}document.getElementById('legalDateResult').innerHTML=`<span class="result-chip ${chip}">${raw||'—'}</span><div class="status-title">${title}</div><p>${body}</p>`}
+
+const researchInfo={
+ pre1:{vi:['Preprint v1','Tốt để xác lập thời điểm công bố sớm và giả thuyết ban đầu. Chưa được đồng nhất với bản chính thức; phải lưu số phiên bản và ngày.'],en:['Preprint v1','Useful for early chronology and initial hypotheses. Do not equate it with the version of record; keep version number and date.']},
+ pre2:{vi:['Preprint v2','Có thể thay đổi phân tích, mẫu hoặc kết luận. Cần diff với v1 và nối quan hệ tới bài xuất bản nếu có.'],en:['Preprint v2','May change analysis, sample, or conclusions. Diff it against v1 and link it to a published article when available.']},
+ vor:{vi:['Version of Record','Bản chính thức của nhà xuất bản, thường gắn DOI và metadata chuẩn. Vẫn phải kiểm tra sự kiện sau xuất bản.'],en:['Version of Record','Publisher’s formal record, usually tied to a DOI and canonical metadata. Still check post-publication events.']},
+ corr:{vi:['Correction','Có thể sửa lỗi nhỏ hoặc thay đổi dữ liệu quan trọng. Cần ghi loại cập nhật và kết luận nào bị ảnh hưởng.'],en:['Correction','May fix a minor error or materially change data. Record the update type and affected claims.']},
+ retr:{vi:['Retraction / concern','Sự kiện thay đổi trạng thái tin cậy. Không xóa hồ sơ khỏi đồ thị; phải gắn cảnh báo rõ và xác định phạm vi ảnh hưởng.'],en:['Retraction / concern','An integrity-status event. Do not erase the record; attach a clear warning and determine the affected scope.']}
+};
+function explainResearchNode(el){document.querySelectorAll('#researchGraph .node').forEach(n=>n.classList.toggle('active',n===el));const x=researchInfo[el.dataset.rnode][lang];document.getElementById('researchNodeInfo').innerHTML=`<div class="status-title">${x[0]}</div><div>${x[1]}</div>`}
+
+function resolveDuplicates(){document.querySelectorAll('#duplicateTable tbody tr').forEach((r,i)=>setTimeout(()=>{const g=r.dataset.group;let text;if(g==='A')text=lang==='vi'?'Cùng văn bản · khác biểu hiện':'Same instrument · different manifestation';else if(g==='B')text=lang==='vi'?'Hồ sơ phiên bản: giữ riêng':'Version record: keep distinct';else text=lang==='vi'?'Bản chính thức: nối quan hệ':'Version of record: relate';r.querySelector('.dup-result').textContent=text;r.classList.add(g==='A'?'selected':'')},i*220))}
+function scoreEvidence(){document.querySelectorAll('#evidenceMatrix tbody tr').forEach((r,i)=>setTimeout(()=>{const b=r.dataset.base.split(',').map(Number);const sels=r.querySelectorAll('select');const relation=+sels[0].value,temporal=+sels[1].value;const score=(.35*b[0]*relation+.25*b[1]+.20*b[2]*temporal+.12*b[3]+.08*b[4]);const cell=r.querySelector('.matrix-score');cell.textContent=score.toFixed(3);cell.className='matrix-score evidence-score '+(score>=.8?'high':score>=.55?'mid':'low')},i*250))}
+
+document.querySelectorAll('#evidenceMatrix select').forEach(s=>s.addEventListener('change',scoreEvidence));
+function buildProvenance(){const steps=[...document.querySelectorAll('#provFlow .mini-step')];steps.forEach(x=>x.classList.remove('active'));document.getElementById('provenanceJson').textContent='{ "status": "building…" }';steps.forEach((x,i)=>setTimeout(()=>x.classList.add('active'),i*260));setTimeout(()=>{const obj={evidence_id:'ev_legal_64_2025_art4',canonical_id:'64/2025/QH15',source_type:'official_legal_database',retrieved_at:'2026-08-02T16:42:00+07:00',relationship:{type:'amended_by',target:'87/2025/QH15'},temporal_scope:{effective_from:'2025-04-01',query_date:document.getElementById('legalDate').value},passage:{anchor:'article-4',page:null,text:'…'},transformations:['fetch_html','remove_boilerplate','structure_parse','normalize_identifier'],content_hash:'sha256:example…',support:{claim_id:'claim_01',relation:'supports',uncertainty:'provision-level verification required'}};document.getElementById('provenanceJson').textContent=JSON.stringify(obj,null,2)},steps.length*260+150)}
+
+function renderMath(){if(!window.katex){document.querySelectorAll('.formula-card').forEach(x=>x.classList.add('math-error'));return}document.querySelectorAll('.math-target').forEach(el=>{try{katex.render(el.dataset.tex,el,{displayMode:true,throwOnError:true})}catch(e){el.closest('.formula-card').classList.add('math-error')}})}
+function updateReading(){const h=document.documentElement,max=h.scrollHeight-h.clientHeight;document.getElementById('readingLine').style.width=(max?100*h.scrollTop/max:0)+'%'}
+window.addEventListener('scroll',updateReading,{passive:true});
+const tocObserver=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)document.querySelectorAll('nav.toc a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+e.target.id))}),{rootMargin:'-20% 0px -70% 0px'});
+document.querySelectorAll('article h2').forEach(h=>tocObserver.observe(h));
+document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;if(e.code==='Space'){e.preventDefault();togglePipeline()}else if(e.key==='ArrowRight')stepAdvanced(1);else if(e.key==='ArrowLeft')stepAdvanced(-1);else if(e.key.toLowerCase()==='r')resetAdvanced()});
+window.addEventListener('DOMContentLoaded',()=>{buildAdvancedPipeline();updateAdvancedPipeline();buildQueryPack();updateCrawler();evaluateLegalDate();setTimeout(renderMath,100);updateReading()});
+</script>
+</body>
+</html>
